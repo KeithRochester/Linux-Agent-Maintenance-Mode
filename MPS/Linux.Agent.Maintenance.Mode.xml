@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ManagementPack SchemaVersion="2.0" ContentReadable="true" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Manifest>
+    <Identity>
+      <ID>Linux.Agent.Maintenance.Mode</ID>
+      <Version>1.0.0.4</Version>
+    </Identity>
+    <Name>Linux Agent Maintenance Mode</Name>
+    <References>
+      <Reference Alias="SC">
+        <ID>Microsoft.SystemCenter.Library</ID>
+        <Version>7.0.8433.0</Version>
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+      </Reference>
+      <Reference Alias="Unix">
+        <ID>Microsoft.Unix.Library</ID>
+        <Version>10.19.1147.0</Version>
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+      </Reference>
+      <Reference Alias="Windows">
+        <ID>Microsoft.Windows.Library</ID>
+        <Version>7.5.8501.0</Version>
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+      </Reference>
+      <Reference Alias="System">
+        <ID>System.Library</ID>
+        <Version>7.5.8501.0</Version>
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+      </Reference>
+    </References>
+  </Manifest>
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" Accessibility="Internal" Abstract="false" Base="Unix!Microsoft.Unix.LocalApplication" Hosted="true" Singleton="false" />
+      </ClassTypes>
+    </EntityTypes>
+    <ModuleTypes>
+      <WriteActionModuleType ID="Linux.Agent.Maintenance.Mode.StopMMforInstancesofClass.WriteAction" Accessibility="Public" Batching="false">
+        <Configuration>
+          <xsd:element minOccurs="1" name="SCOMManagementServer" type="xsd:string" xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
+          <xsd:element minOccurs="1" name="ClassName" type="xsd:string" xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
+        </Configuration>
+        <OverrideableParameters>
+          <OverrideableParameter ID="SCOMManagementServer" Selector="$Config/SCOMManagementServer$" ParameterType="string" />
+          <OverrideableParameter ID="ClassName" Selector="$Config/ClassName$" ParameterType="string" />
+        </OverrideableParameters>
+        <ModuleImplementation Isolation="Any">
+          <Composite>
+            <MemberModules>
+              <WriteAction ID="Script" TypeID="Windows!Microsoft.Windows.PowerShellWriteAction">
+                <ScriptName>Stop-MMForAllInstancesOfClass.ps1</ScriptName>
+                <ScriptBody><![CDATA[[CmdletBinding()]
+Param(
+
+  [Parameter(Mandatory=$false)]
+  [string]  
+  $SCOMManagementServer,
+
+  [Parameter(Mandatory=$false)]
+  [string]$ClassName
+  )
+
+
+
+<#
+Test values 
+
+$SCOMManagementServer = "."
+$ClassName = "Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" # valid class name
+#$ClassName = "Broken.class" #invalid class 
+
+#>
+
+
+$ScriptName = "Stop-MMForAllInstancesOfClass.ps1"
+$EventNumber = 5001
+
+#Setting Trace log varriables to empty
+$Script:CurrentAction = ""
+$Script:Trace = ""
+
+# Define 'Appendlog' function to allow appending to trace log 
+function appendlog ([string]$Message)
+{
+	
+    $Script:CurrentAction = $Message
+	$Script:Trace += ((Get-Date).ToString() + "`t" + $Message + " `r`n")
+    
+    While(($Script:Trace.length) -gt 31000)
+    {
+       [System.Collections.ArrayList]$TraceList = $Script:Trace.Split("`n")
+       $TraceList.Removeat(0)
+       $TraceList[0] = "Message has been truncated to fit into Windows Event Log message"
+       $Script:Trace = $TraceList -join "`n"
+    }
+}
+
+
+$api = New-Object -comObject 'MOM.ScriptAPI'
+AppendLog ("Starting script")
+Write-Verbose $Script:CurrentAction
+$api.LogScriptEvent($ScriptName,$EventNumber,4, $CurrentAction)
+
+AppendLog ("Loading Operations Manager Module and connecting to Management Server: " + $SCOMManagementServer ) 
+Write-Verbose $Script:CurrentAction 
+Add-PSSnapin Microsoft.EnterpriseManagement.OperationsManager.Client
+try{
+    New-SCOMManagementGroupConnection -ComputerName $SCOMManagementServer
+}
+Catch{
+    AppendLog ("Could not connect to Management Server " + $SCOMManagementServer  + " exiting script")
+    $api.LogScriptEvent($ScriptName,$EventNumber,1, $CurrentAction)
+    Write-Error $Script:CurrentAction
+    Exit
+}
+
+AppendLog ("Getting Class $ClassName")
+Write-Verbose $Script:CurrentAction
+$Class = Get-SCOMClass -Name $ClassName
+if($Class){
+    AppendLog ("Class found '$($Class.Displayname)'")
+    Write-Verbose $Script:Trace
+
+    AppendLog ("Getting instances in maintenance mode")
+    Write-Verbose $Script:Trace
+    $Instances = @(Get-SCOMClassInstance -Class $Class | ? {$_.InMaintenanceMode})
+    if($Instances){
+        AppendLog ("$($Instances.Count) instances found in maintenance mode")
+        Write-Verbose $Script:Trace
+
+        foreach($Instance in $Instances){
+            AppendLog ("Stopping maintenance mode for $($Instance.DisplayName) on $($Instance.Path)")
+            Write-Verbose $Script:Trace
+            $Instance.StopMaintenanceMode([System.DateTime]::Now.ToUniversalTime(),[Microsoft.EnterpriseManagement.Common.TraversalDepth]::Recursive)
+        }   
+    }else{
+        AppendLog ("No instances found in maintenance mode")
+        Write-Verbose $Script:Trace
+    }
+}else{
+    AppendLog ("Class not found")
+    Write-Verbose $Script:Trace
+}
+
+AppendLog ("Script completed")
+Write-Verbose $Script:Trace
+$api.LogScriptEvent($ScriptName,$EventNumber,4, $Script:Trace)
+
+
+
+]]></ScriptBody>
+                <Parameters>
+                  <Parameter>
+                    <Name>SCOMManagementServer</Name>
+                    <Value>$Config/SCOMManagementServer$</Value>
+                  </Parameter>
+                  <Parameter>
+                    <Name>ClassName</Name>
+                    <Value>$Config/ClassName$</Value>
+                  </Parameter>
+                </Parameters>
+                <TimeoutSeconds>300</TimeoutSeconds>
+              </WriteAction>
+            </MemberModules>
+            <Composition>
+              <Node ID="Script" />
+            </Composition>
+          </Composite>
+        </ModuleImplementation>
+        <OutputType>Windows!Microsoft.Windows.SerializedObjectData</OutputType>
+        <InputType>System!System.BaseData</InputType>
+      </WriteActionModuleType>
+      <WriteActionModuleType ID="Linux.Agent.Maintenance.Mode.TriggerMM.WriteAction" Accessibility="Public" Batching="false">
+        <Configuration>
+          <xsd:element minOccurs="1" name="SCOMManagementServer" type="xsd:string" xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
+          <xsd:element minOccurs="1" name="id" type="xsd:string" xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
+          <xsd:element minOccurs="1" name="MMEvent" type="xsd:string" xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
+          <xsd:element minOccurs="1" name="Separator" type="xsd:string" xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
+        </Configuration>
+        <OverrideableParameters>
+          <OverrideableParameter ID="SCOMManagementServer" Selector="$Config/SCOMManagementServer$" ParameterType="string" />
+          <OverrideableParameter ID="Separator" Selector="$Config/Separator$" ParameterType="string" />
+        </OverrideableParameters>
+        <ModuleImplementation Isolation="Any">
+          <Composite>
+            <MemberModules>
+              <WriteAction ID="Script" TypeID="Windows!Microsoft.Windows.PowerShellWriteAction">
+                <ScriptName>Set-LinuxAgentMM.ps1</ScriptName>
+                <ScriptBody><![CDATA[[CmdletBinding()]
+Param(
+
+  [Parameter(Mandatory=$false)]
+  [string]  
+  $SCOMManagementServer,
+
+  [Parameter(Mandatory=$false)]
+  [string]$id,
+
+  [Parameter(Mandatory=$false)]
+  [string]$MMEvent,
+
+  [Parameter(Mandatory=$false)]
+  [string]$Separator
+  )
+
+
+
+<#
+Test values 
+
+$id = "00000000-0000-0000-0000-000000000000"
+$SCOMManagementServer = "."
+$MMEvent = "19/10/2022 14:30,START,60,Testing MM,PlannedApplicationMaintenance" #Start
+$MMEvent = "19/10/2022 14:30,STOP" #Stop
+$Separator = ","
+#>
+$Action = $MMEvent.split($Separator)[1]
+
+
+<# Valid MM Reasons
+“ApplicationInstallation",
+"ApplicationUnresponsive",
+"LossOfNetworkConnectivity",
+"PlannedApplicationMaintenance",
+"PlannedHardwareInstallation",
+"PlannedOperatingSystemReconfiguration",
+"PlannedOther",
+"SecurityIssue",
+"UnplannedApplicationMaintenance",
+"UnplannedHardwareMaintenance",
+"UnplannedOther”
+#>
+
+
+$EventNumber = 5002
+$ScriptName = "Set-LinuxAgentMM.ps1"
+
+#Setting Trace log varriables to empty
+$Script:CurrentAction = ""
+$Script:Trace = ""
+
+# Define 'Appendlog' function to allow appending to trace log 
+function appendlog ([string]$Message)
+{
+	
+    $Script:CurrentAction = $Message
+	$Script:Trace += ((Get-Date).ToString() + "`t" + $Message + " `r`n")
+    
+    While(($Script:Trace.length) -gt 31000)
+    {
+       [System.Collections.ArrayList]$TraceList = $Script:Trace.Split("`n")
+       $TraceList.Removeat(0)
+       $TraceList[0] = "Message has been truncated to fit into Windows Event Log message"
+       $Script:Trace = $TraceList -join "`n"
+    }
+}
+
+
+$api = New-Object -comObject 'MOM.ScriptAPI'
+AppendLog ("Starting script")
+Write-Verbose $Script:CurrentAction
+$api.LogScriptEvent($ScriptName,$EventNumber,4, $CurrentAction)
+
+AppendLog ("Loading Operations Manager Module and connecting to Management Server: " + $SCOMManagementServer ) 
+Write-Verbose $Script:CurrentAction 
+Add-PSSnapin Microsoft.EnterpriseManagement.OperationsManager.Client
+try{
+    New-SCOMManagementGroupConnection -ComputerName $SCOMManagementServer
+}
+Catch{
+    AppendLog ("Could not connect to Management Server " + $SCOMManagementServer  + " exiting script")
+    $api.LogScriptEvent($ScriptName,$EventNumber,1, $CurrentAction)
+    Write-Error $Script:CurrentAction
+    Exit
+}
+
+
+
+
+
+AppendLog ("Getting MM class instance: $id") 
+Write-Verbose $Script:CurrentAction 
+$UnixComputerClass = Get-SCOMClass -Name 'Microsoft.Unix.Computer'
+$MMAgent = Get-SCOMClassInstance -Id $id
+$Computer = $MMAgent.GetParentMonitoringObjects() | ? {$_.LeastDerivedNonAbstractManagementPackClassId -eq $UnixComputerClass.Id}
+
+
+
+Switch ($Action){
+
+    "START" {
+
+        $MMDuration = $MMEvent.split($Separator)[2]
+        $MMComment = $MMEvent.split($Separator)[3]
+        $MMReason = $MMEvent.split($Separator)[4]
+        $StartDate = $(Get-Date).ToUniversalTime();
+        $MMEndDate = $StartDate.AddMinutes($MMDuration)
+
+        if($Computer.InMaintenanceMode){
+            AppendLog ("Computer already in Maintenance Mode") 
+            Write-Verbose $Script:CurrentAction 
+            $CurrentMMEndTime = $Computer.GetMaintenanceWindow().ScheduledEndTime
+            $DateDiffScheduledEnd = New-TimeSpan $MMEndDate $CurrentMMEndTime
+            if ($DateDiffScheduledEnd.TotalMinutes -lt 0){
+                AppendLog ("Extending Maintenance Mode") 
+                Write-Verbose $Script:CurrentAction 
+                $MMComment = $Computer.GetMaintenanceWindow().Comments + "`r`nExtended: " + $MMComment
+                $Computer.UpdateMaintenanceMode($MMEndDate, $Computer.GetMaintenanceWindow().Reason, $MMComment)
+                if($MMAgent.InMaintenanceMode){
+                    $MMAgent.StopMaintenanceMode([DateTime]::Now.ToUniversalTime(),[Microsoft.EnterpriseManagement.Common.TraversalDepth]::OneLevel);
+                }
+            }else{
+                AppendLog ("Existing Maintenance Mode does not need to be extended") 
+                Write-Verbose $Script:CurrentAction 
+            }
+                               
+        }else{
+            AppendLog ("Starting Maintenance Mode") 
+            Write-Verbose $Script:CurrentAction 
+            Start-SCOMMaintenanceMode -Instance $Computer -EndTime ($MMEndDate.ToUniversalTime()) -Comment $MMComment -Reason $MMReason
+            $MMAgent.StopMaintenanceMode([DateTime]::Now.ToUniversalTime(),[Microsoft.EnterpriseManagement.Common.TraversalDepth]::OneLevel);
+        }    
+    }
+    "STOP" {
+        AppendLog ("Stopping Maintenance Mode") 
+        Write-Verbose $Script:CurrentAction 
+        $Computer.StopMaintenanceMode([System.DateTime]::Now.ToUniversalTime(),[Microsoft.EnterpriseManagement.Common.TraversalDepth]::Recursive);
+    }
+
+}
+
+
+AppendLog ("Script completed")
+Write-Verbose $Script:Trace
+$api.LogScriptEvent($ScriptName,$EventNumber,4, $Script:Trace)
+
+]]></ScriptBody>
+                <Parameters>
+                  <Parameter>
+                    <Name>SCOMManagementServer</Name>
+                    <Value>$Config/SCOMManagementServer$</Value>
+                  </Parameter>
+                  <Parameter>
+                    <Name>id</Name>
+                    <Value>$Config/id$</Value>
+                  </Parameter>
+                  <Parameter>
+                    <Name>MMEvent</Name>
+                    <Value>$Config/MMEvent$</Value>
+                  </Parameter>
+                  <Parameter>
+                    <Name>Separator</Name>
+                    <Value>$Config/Separator$</Value>
+                  </Parameter>
+                </Parameters>
+                <TimeoutSeconds>300</TimeoutSeconds>
+              </WriteAction>
+            </MemberModules>
+            <Composition>
+              <Node ID="Script" />
+            </Composition>
+          </Composite>
+        </ModuleImplementation>
+        <OutputType>Windows!Microsoft.Windows.SerializedObjectData</OutputType>
+        <InputType>System!System.BaseData</InputType>
+      </WriteActionModuleType>
+    </ModuleTypes>
+  </TypeDefinitions>
+  <Monitoring>
+    <Discoveries>
+      <Discovery ID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.Discovery" Target="Unix!Microsoft.Unix.Computer" Enabled="true" Remotable="true">
+        <Category>Discovery</Category>
+        <DiscoveryTypes>
+          <DiscoveryClass TypeID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" />
+        </DiscoveryTypes>
+        <DataSource ID="DS" TypeID="Unix!Microsoft.Unix.ScheduledClassSnapshotDataMapper">
+          <Scheduler>
+            <SimpleReccuringSchedule>
+              <Interval Unit="Seconds">600</Interval>
+              <SyncTime />
+            </SimpleReccuringSchedule>
+            <ExcludeDates />
+          </Scheduler>
+          <ClassId>$MPElement[Name="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class"]$</ClassId>
+          <InstanceSettings>
+            <Settings>
+              <Setting>
+                <Name>$MPElement[Name="Unix!Microsoft.Unix.Computer"]/PrincipalName$</Name>
+                <Value>$Target/Property[Type="Unix!Microsoft.Unix.Computer"]/PrincipalName$</Value>
+              </Setting>
+              <Setting>
+                <Name>$MPElement[Name="System!System.Entity"]/DisplayName$</Name>
+                <Value>Agent Maintenance Mode</Value>
+              </Setting>
+            </Settings>
+          </InstanceSettings>
+        </DataSource>
+      </Discovery>
+    </Discoveries>
+    <Rules>
+      <Rule ID="Linux.Agent.Maintenance.Mode.MMLogEntryTriggersMM.Rule" Enabled="true" Target="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" ConfirmDelivery="false" Remotable="true" Priority="Normal" DiscardLevel="100">
+        <Category>Maintenance</Category>
+        <DataSources>
+          <DataSource ID="EventDS" TypeID="Unix!Microsoft.Unix.SCXLog.VarPriv.DataSource">
+            <Host>$Target/Host/Property[Type="Unix!Microsoft.Unix.Computer"]/PrincipalName$</Host>
+            <LogFile>/var/log/scom-agentmm.log</LogFile>
+            <UserName>$RunAs[Name="Unix!Microsoft.Unix.ActionAccount"]/UserName$</UserName>
+            <Password>$RunAs[Name="Unix!Microsoft.Unix.ActionAccount"]/Password$</Password>
+            <RegExpFilter>START|STOP</RegExpFilter>
+            <IndividualAlerts>true</IndividualAlerts>
+          </DataSource>
+        </DataSources>
+        <WriteActions>
+          <WriteAction ID="TriggerMMPoSh" TypeID="Linux.Agent.Maintenance.Mode.TriggerMM.WriteAction">
+            <SCOMManagementServer>.</SCOMManagementServer>
+            <id>$Target/Id$</id>
+            <MMEvent>$Data/EventDescription$</MMEvent>
+            <Separator>,</Separator>
+          </WriteAction>
+        </WriteActions>
+      </Rule>
+      <Rule ID="Linux.Agent.Maintenance.Mode.StopMMforAgentMMClass.Rule" Target="SC!Microsoft.SystemCenter.AllManagementServersPool" Enabled="true" ConfirmDelivery="false" Remotable="true" Priority="Normal" DiscardLevel="100">
+        <Category>Operations</Category>
+        <DataSources>
+          <DataSource ID="DS" TypeID="System!System.Scheduler">
+            <Scheduler>
+              <SimpleReccuringSchedule>
+                <Interval Unit="Seconds">300</Interval>
+                <SyncTime></SyncTime>
+              </SimpleReccuringSchedule>
+              <ExcludeDates></ExcludeDates>
+            </Scheduler>
+          </DataSource>
+        </DataSources>
+        <WriteActions>
+          <WriteAction ID="WA" TypeID="Linux.Agent.Maintenance.Mode.StopMMforInstancesofClass.WriteAction">
+            <SCOMManagementServer>.</SCOMManagementServer>
+            <ClassName>Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class</ClassName>
+          </WriteAction>
+        </WriteActions>
+      </Rule>
+    </Rules>
+  </Monitoring>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.Discovery">
+          <Name>Linux Agent Maintenance Mode Class Discovery</Name>
+          <Description></Description>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.MMLogEntryTriggersMM.Rule">
+          <Name>Linux Agent Maintenance Mode - Linux Log Entry triggers Maintenance Mode Rule</Name>
+          <Description>Linux Log Entry triggers Maintenance Mode Rule</Description>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.StopMMforAgentMMClass.Rule">
+          <Name>Linux Agent Maintenance Mode - Stop Maintenance Mode for all instances of MM Linux Agent Class Rule</Name>
+          <Description>Stop Maintenance Mode for all instances of MM Linux Agent Class. Ensures MM agent class is out of MM to pick up stop MM log enteries</Description>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode">
+          <Name>Linux Agent Maintenance Mode</Name>
+          <Description>MP used to initiate maintenance mode from a Linux agent</Description>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class">
+          <Name>Linux Agent Maintenance Mode Class</Name>
+        </DisplayString>
+      </DisplayStrings>
+      <KnowledgeArticles>
+        <KnowledgeArticle ElementID="Linux.Agent.Maintenance.Mode" Visible="true">
+          <MamlContent>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Linux Agent Maintenance Mode</maml:title>
+              <maml:para>
+                Documentation and the latest version can be found on GitHub -<maml:navigationLink><maml:linkText>https://github.com/KeithRochester/Linux-Agent-Maintenance-Mode.</maml:linkText><maml:uri href="https://github.com/KeithRochester/Linux-Agent-Maintenance-Mode" /></maml:navigationLink>. 
+              </maml:para>
+              <maml:para>
+                If you have any questions or suggestions, please send me a message <maml:navigationLink><maml:linkText>keith.rochester@unit92.com</maml:linkText><maml:uri href="mailto:keith.rochester@unit92.com?subject=Linux%20Agent%20Maintenance%20Mode" /></maml:navigationLink></maml:para>
+            </maml:section>
+          </MamlContent>
+        </KnowledgeArticle>
+      </KnowledgeArticles>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPack>

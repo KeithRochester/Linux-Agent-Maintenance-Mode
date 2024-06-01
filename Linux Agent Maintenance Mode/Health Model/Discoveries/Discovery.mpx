@@ -1,0 +1,44 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Monitoring>
+    <Discoveries>
+      <Discovery ID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.Discovery" Target="Unix!Microsoft.Unix.Computer" Enabled="true" Remotable="true">
+        <Category>Discovery</Category>
+        <DiscoveryTypes>
+          <DiscoveryClass TypeID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" />
+        </DiscoveryTypes>
+        <DataSource ID="DS" TypeID="Unix!Microsoft.Unix.ScheduledClassSnapshotDataMapper">
+          <Scheduler>
+            <SimpleReccuringSchedule>
+              <Interval Unit="Seconds">600</Interval>
+              <SyncTime />
+            </SimpleReccuringSchedule>
+            <ExcludeDates />
+          </Scheduler>
+          <ClassId>$MPElement[Name="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class"]$</ClassId>
+          <InstanceSettings>
+            <Settings>
+              <Setting>
+                <Name>$MPElement[Name="Unix!Microsoft.Unix.Computer"]/PrincipalName$</Name>
+                <Value>$Target/Property[Type="Unix!Microsoft.Unix.Computer"]/PrincipalName$</Value>
+              </Setting>
+              <Setting>
+                <Name>$MPElement[Name="System!System.Entity"]/DisplayName$</Name>
+                <Value>Agent Maintenance Mode</Value>
+              </Setting>
+            </Settings>
+          </InstanceSettings>
+        </DataSource>
+      </Discovery>
+    </Discoveries>
+  </Monitoring>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.Discovery">
+          <Name>Linux Agent Maintenance Mode Class Discovery</Name>
+          <Description></Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

@@ -1,0 +1,99 @@
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <ProjectGuid>{1986100b-1cfd-4b04-ad4e-76a07d48d071}</ProjectGuid>
+    <RootNamespace>Linux.Agent.Maintenance.Mode</RootNamespace>
+    <Name>Linux Agent Maintenance Mode</Name>
+    <ManagementPackName>Linux.Agent.Maintenance.Mode</ManagementPackName>
+    <Version>1.0.0.0</Version>
+    <MpFrameworkVersion>v7.0.2</MpFrameworkVersion>
+    <MpFrameworkProfile>OM</MpFrameworkProfile>
+    <ProductVersion>1.1.0.0</ProductVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\MPS\</OutputPath>
+    <GenerateSealed>True</GenerateSealed>
+    <Company>Unit 92 Ltd</Company>
+    <Copyright>Copyright (c) Unit 92 Ltd. All rights reserved.</Copyright>
+    <DelaySigning>False</DelaySigning>
+    <AssemblyOriginatorKeyFile>..\..\U92SMF.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>false</DebugSymbols>
+    <OutputPath>bin\Release\</OutputPath>
+    <DelaySigning>false</DelaySigning>
+    <Company>MyCompany</Company>
+    <Copyright>Copyright (c) MyCompany. All rights reserved.</Copyright>
+    <DelaySign>false</DelaySign>
+    <AssemblyOriginatorKeyFile />
+  </PropertyGroup>
+  <ItemGroup>
+    <ManagementPackReference Include="Microsoft.SystemCenter.Library">
+      <Alias>SC</Alias>
+      <PackageToBundle>false</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="Microsoft.Unix.Library">
+      <HintPath>D:\OneDrive\Documents\GitHub\Linux-Agent-Maintenance-Mode\Linux Agent Maintenance Mode\Resources\Referenced MPs\Microsoft.Unix.Library.mp</HintPath>
+      <Alias>Unix</Alias>
+      <MinVersion>10.19.1147.0</MinVersion>
+      <PackageToBundle>False</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="Microsoft.Windows.Library">
+      <Alias>Windows</Alias>
+      <PackageToBundle>false</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="System.Health.Library">
+      <Alias>Health</Alias>
+      <PackageToBundle>false</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="System.Library">
+      <Alias>System</Alias>
+      <PackageToBundle>false</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="Microsoft.SystemCenter.Visualization.Library">
+      <Alias>Visualization</Alias>
+      <PackageToBundle>false</PackageToBundle>
+    </ManagementPackReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Health Model\Discoveries\Discovery.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Health Model\Rules\Log Entry Triggers MM Rule.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Health Model\Rules\Stop MM for Agent MM Class Rule.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ManagementPack.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Service Model\Classes\Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Type Library\Module Types\Write Actions\StopMMforInstancesofClass.WriteAction.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Type Library\Module Types\Write Actions\TriggerMM.WriteAction.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Health Model" />
+    <Folder Include="Health Model\Discoveries" />
+    <Folder Include="Health Model\Rules" />
+    <Folder Include="Resources\Scripts" />
+    <Folder Include="Service Model\Classes" />
+    <Folder Include="Type Library" />
+    <Folder Include="Service Model" />
+    <Folder Include="Resources" />
+    <Folder Include="Type Library\Module Types" />
+    <Folder Include="Type Library\Module Types\Write Actions" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Scripts\Set-LinuxAgentMM.ps1" />
+    <EmbeddedResource Include="Resources\Scripts\Stop-MMForAllInstancesOfClass.ps1" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VSAC\Microsoft.SystemCenter.OperationsManager.targets" />
+</Project>

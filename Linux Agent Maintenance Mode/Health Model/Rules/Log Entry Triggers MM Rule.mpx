@@ -1,0 +1,37 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Monitoring>
+    <Rules>
+      <Rule ID="Linux.Agent.Maintenance.Mode.MMLogEntryTriggersMM.Rule" Enabled="true" Target="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" ConfirmDelivery="false" Remotable="true" Priority="Normal" DiscardLevel="100">
+        <Category>Maintenance</Category>
+        <DataSources>
+          <DataSource ID="EventDS" TypeID="Unix!Microsoft.Unix.SCXLog.VarPriv.DataSource">
+            <Host>$Target/Host/Property[Type="Unix!Microsoft.Unix.Computer"]/PrincipalName$</Host>
+            <LogFile>/var/log/scom-agentmm.log</LogFile>
+            <UserName>$RunAs[Name="Unix!Microsoft.Unix.ActionAccount"]/UserName$</UserName>
+            <Password>$RunAs[Name="Unix!Microsoft.Unix.ActionAccount"]/Password$</Password>
+            <RegExpFilter>START|STOP</RegExpFilter>
+            <IndividualAlerts>true</IndividualAlerts>
+          </DataSource>
+        </DataSources>
+        <WriteActions>
+          <WriteAction ID="TriggerMMPoSh" TypeID="Linux.Agent.Maintenance.Mode.TriggerMM.WriteAction">
+            <SCOMManagementServer>.</SCOMManagementServer>
+            <id>$Target/Id$</id>
+            <MMEvent>$Data/EventDescription$</MMEvent>
+            <Separator>,</Separator>
+          </WriteAction>
+        </WriteActions>
+      </Rule>
+    </Rules>
+  </Monitoring>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.MMLogEntryTriggersMM.Rule">
+          <Name>Linux Agent Maintenance Mode - Linux Log Entry triggers Maintenance Mode Rule</Name>
+          <Description>Linux Log Entry triggers Maintenance Mode Rule</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

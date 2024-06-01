@@ -1,0 +1,52 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <ModuleTypes>
+      <WriteActionModuleType ID="Linux.Agent.Maintenance.Mode.TriggerMM.WriteAction" Accessibility="Public" Batching="false">
+        <Configuration>
+          <xsd:element minOccurs="1" name="SCOMManagementServer" type="xsd:string" />
+          <xsd:element minOccurs="1" name="id" type="xsd:string" />
+          <xsd:element minOccurs="1" name="MMEvent" type="xsd:string" />
+          <xsd:element minOccurs="1" name="Separator" type="xsd:string" />
+        </Configuration>
+        <OverrideableParameters>
+          <OverrideableParameter ID="SCOMManagementServer" Selector="$Config/SCOMManagementServer$" ParameterType="string" />
+          <OverrideableParameter ID="Separator" Selector="$Config/Separator$" ParameterType="string" />
+        </OverrideableParameters>
+        <ModuleImplementation Isolation="Any">
+          <Composite>
+            <MemberModules>
+              <WriteAction ID="Script" TypeID="Windows!Microsoft.Windows.PowerShellWriteAction">
+                <ScriptName>Set-LinuxAgentMM.ps1</ScriptName>
+                <ScriptBody>$IncludeFileContent/Resources/Scripts/Set-LinuxAgentMM.ps1$</ScriptBody>
+                <Parameters>
+                  <Parameter>
+                    <Name>SCOMManagementServer</Name>
+                    <Value>$Config/SCOMManagementServer$</Value>
+                  </Parameter>
+                  <Parameter>
+                    <Name>id</Name>
+                    <Value>$Config/id$</Value>
+                  </Parameter>
+                  <Parameter>
+                    <Name>MMEvent</Name>
+                    <Value>$Config/MMEvent$</Value>
+                  </Parameter>
+                  <Parameter>
+                    <Name>Separator</Name>
+                    <Value>$Config/Separator$</Value>
+                  </Parameter>
+                </Parameters>
+                <TimeoutSeconds>300</TimeoutSeconds>
+              </WriteAction>
+            </MemberModules>
+            <Composition>
+              <Node ID="Script" />
+            </Composition>
+          </Composite>
+        </ModuleImplementation>
+        <OutputType>Windows!Microsoft.Windows.SerializedObjectData</OutputType>
+        <InputType>System!System.BaseData</InputType>
+      </WriteActionModuleType>
+    </ModuleTypes>
+  </TypeDefinitions>
+</ManagementPackFragment>

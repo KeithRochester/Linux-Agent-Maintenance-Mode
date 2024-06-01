@@ -1,0 +1,37 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Monitoring>
+    <Rules>
+      <Rule ID="Linux.Agent.Maintenance.Mode.StopMMforAgentMMClass.Rule" Target="SC!Microsoft.SystemCenter.AllManagementServersPool" Enabled="true" ConfirmDelivery="false" Remotable="true" Priority="Normal" DiscardLevel="100">
+        <Category>Operations</Category>
+        <DataSources>
+          <DataSource ID="DS" TypeID="System!System.Scheduler">
+            <Scheduler>
+              <SimpleReccuringSchedule>
+                <Interval Unit="Seconds">300</Interval>
+                <SyncTime></SyncTime>
+              </SimpleReccuringSchedule>
+              <ExcludeDates></ExcludeDates>
+            </Scheduler>
+          </DataSource>
+        </DataSources>
+        <WriteActions>
+          <WriteAction ID="WA" TypeID="Linux.Agent.Maintenance.Mode.StopMMforInstancesofClass.WriteAction">
+            <SCOMManagementServer>.</SCOMManagementServer>
+            <ClassName>Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class</ClassName>
+          </WriteAction>
+        </WriteActions>
+      </Rule>
+    </Rules>
+  </Monitoring>
+
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.StopMMforAgentMMClass.Rule">
+          <Name>Linux Agent Maintenance Mode - Stop Maintenance Mode for all instances of MM Linux Agent Class Rule</Name>
+          <Description>Stop Maintenance Mode for all instances of MM Linux Agent Class. Ensures MM agent class is out of MM to pick up stop MM log enteries</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>
