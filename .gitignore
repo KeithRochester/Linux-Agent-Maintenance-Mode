@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/Linux Agent Maintenance Mode/.vs/Linux Agent Maintenance Mode/FileContentIndex
+/Linux Agent Maintenance Mode/.vs/Linux Agent Maintenance Mode/v17
+/Linux Agent Maintenance Mode/obj/Debug
+/MPS/Linux.Agent.Maintenance.Mode.pdb
+/MPS/Linux.Agent.Maintenance.Mode.mpb
