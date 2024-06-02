@@ -1,12 +1,10 @@
-﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <TypeDefinitions>
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><TypeDefinitions>
     <EntityTypes>
       <ClassTypes>
-        <ClassType ID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" Accessibility="Internal" Abstract="false" Base="Unix!Microsoft.Unix.LocalApplication" Hosted="true" Singleton="false" />
+        <ClassType ID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" Accessibility="Internal" Abstract="false" Base="Unix!Microsoft.Unix.LocalApplication" Hosted="true" Singleton="false" Extension="false" />
       </ClassTypes>
     </EntityTypes>
-  </TypeDefinitions>
-  <LanguagePacks>
+  </TypeDefinitions><LanguagePacks>
     <LanguagePack ID="ENU" IsDefault="true">
       <DisplayStrings>
         <DisplayString ElementID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class">
@@ -14,5 +12,4 @@
         </DisplayString>
       </DisplayStrings>
     </LanguagePack>
-  </LanguagePacks>
-</ManagementPackFragment>
+  </LanguagePacks></ManagementPackFragment>

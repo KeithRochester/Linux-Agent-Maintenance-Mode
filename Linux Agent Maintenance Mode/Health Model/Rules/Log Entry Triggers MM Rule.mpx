@@ -1,9 +1,36 @@
-﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Monitoring>
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><Monitoring>
     <Rules>
       <Rule ID="Linux.Agent.Maintenance.Mode.MMLogEntryTriggersMM.Rule" Enabled="true" Target="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" ConfirmDelivery="false" Remotable="true" Priority="Normal" DiscardLevel="100">
         <Category>Maintenance</Category>
         <DataSources>
+          <!--TODO: MAYBE: Look into making interval overridable. Currently it's 300 seconds. Microsoft.Unix.SCXLog.VarPriv.DataSource uses Microsoft.Unix.SCXLog.Native.DataSource which is internal and doesn't expose interval as an overridable parameter.
+        
+        <DataSourceModuleType ID="Microsoft.Unix.SCXLog.Native.DataSource" Accessibility="Internal" Batching="true">
+        <Configuration>
+          <xsd:element name="Protocol" type="xsd:string" minOccurs="0" />
+          <xsd:element name="Host" type="xsd:string" />
+          <xsd:element name="Port" type="xsd:string" minOccurs="0" />
+          <xsd:element name="UserName" type="xsd:string" />
+          <xsd:element name="Password" type="xsd:string" />
+          <xsd:element name="LogFile" type="xsd:string" />
+          <xsd:element name="RegExpFilter" type="xsd:string" minOccurs="0" />
+          <xsd:element name="IndividualAlerts" type="xsd:boolean" minOccurs="0" />
+          <xsd:element name="QId" type="xsd:string" minOccurs="0" />
+          <xsd:element name="IntervalSeconds" type="xsd:string" />
+          <xsd:element name="ExpectedProblems" type="xsd:string" minOccurs="0" />
+          <xsd:element name="SkipCACheck" type="xsd:string" minOccurs="0" />
+          <xsd:element name="SkipCNCheck" type="xsd:string" minOccurs="0" />
+        </Configuration>
+        <ModuleImplementation Isolation="OwnProcess">
+          <Native>
+            <ClassID>00D78716-E1E7-431f-BBE0-5325AE246212</ClassID>
+          </Native>
+        </ModuleImplementation>
+        <OutputType>System!System.BaseData</OutputType>
+      </DataSourceModuleType>
+        
+        
+        -->
           <DataSource ID="EventDS" TypeID="Unix!Microsoft.Unix.SCXLog.VarPriv.DataSource">
             <Host>$Target/Host/Property[Type="Unix!Microsoft.Unix.Computer"]/PrincipalName$</Host>
             <LogFile>/var/log/scom-agentmm.log</LogFile>
@@ -23,8 +50,7 @@
         </WriteActions>
       </Rule>
     </Rules>
-  </Monitoring>
-  <LanguagePacks>
+  </Monitoring><LanguagePacks>
     <LanguagePack ID="ENU" IsDefault="true">
       <DisplayStrings>
         <DisplayString ElementID="Linux.Agent.Maintenance.Mode.MMLogEntryTriggersMM.Rule">
@@ -32,6 +58,55 @@
           <Description>Linux Log Entry triggers Maintenance Mode Rule</Description>
         </DisplayString>
       </DisplayStrings>
+      <KnowledgeArticles>
+        <KnowledgeArticle ElementID="Linux.Agent.Maintenance.Mode.MMLogEntryTriggersMM.Rule" Visible="true">
+          <MamlContent>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Summary</maml:title>
+              <maml:para>Rule that collects Maintenance Mode log entries in log file. Uses data from log file to start, stop, or extend maintenance mode window for the Linux computer object.</maml:para>
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Configuration</maml:title>
+              <maml:table>
+                <maml:tableHeader>
+                  <maml:row>
+                    <maml:headerEntry>
+                      <maml:para>Parameter</maml:para>
+                    </maml:headerEntry>
+                    <maml:headerEntry>
+                      <maml:para>Default Value</maml:para>
+                    </maml:headerEntry>
+                    <maml:headerEntry>
+                      <maml:para>Description</maml:para>
+                    </maml:headerEntry>
+                  </maml:row>
+                </maml:tableHeader>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Log File</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>/var/log/scom-agentmm.log</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>Log file to monitor for Maintenance Mode entries.</maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Separator</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>,</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>Field separator used to split log entry.</maml:para>
+                  </maml:entry>
+                </maml:row>
+              </maml:table>
+            </maml:section>
+          </MamlContent>
+        </KnowledgeArticle>
+      </KnowledgeArticles>
     </LanguagePack>
-  </LanguagePacks>
-</ManagementPackFragment>
+  </LanguagePacks></ManagementPackFragment>

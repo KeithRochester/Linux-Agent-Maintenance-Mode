@@ -5,7 +5,7 @@
     <RootNamespace>Linux.Agent.Maintenance.Mode</RootNamespace>
     <Name>Linux Agent Maintenance Mode</Name>
     <ManagementPackName>Linux.Agent.Maintenance.Mode</ManagementPackName>
-    <Version>1.0.0.0</Version>
+    <Version>1.0.1.0</Version>
     <MpFrameworkVersion>v7.0.2</MpFrameworkVersion>
     <MpFrameworkProfile>OM</MpFrameworkProfile>
     <ProductVersion>1.1.0.0</ProductVersion>

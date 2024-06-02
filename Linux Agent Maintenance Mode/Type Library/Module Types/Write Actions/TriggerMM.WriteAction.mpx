@@ -1,5 +1,4 @@
-﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <TypeDefinitions>
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><TypeDefinitions>
     <ModuleTypes>
       <WriteActionModuleType ID="Linux.Agent.Maintenance.Mode.TriggerMM.WriteAction" Accessibility="Public" Batching="false">
         <Configuration>
@@ -48,5 +47,21 @@
         <InputType>System!System.BaseData</InputType>
       </WriteActionModuleType>
     </ModuleTypes>
-  </TypeDefinitions>
-</ManagementPackFragment>
+  </TypeDefinitions><LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.TriggerMM.WriteAction" SubElementID="SCOMManagementServer">
+          <Name>Management Server</Name>
+          <Description>Management server script will connect to.</Description>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.TriggerMM.WriteAction">
+          <Name>Start or Stop Maintenance Mode on Linux Computer</Name>
+          <Description>Start or stop Maintenance Mode on Linux computer. Takes log entry as input.</Description>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.TriggerMM.WriteAction" SubElementID="Separator">
+          <Name>Separator</Name>
+          <Description>Field separator used to split log entry.</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks></ManagementPackFragment>

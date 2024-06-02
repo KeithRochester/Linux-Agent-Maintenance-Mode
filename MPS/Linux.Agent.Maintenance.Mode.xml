@@ -3,7 +3,7 @@
   <Manifest>
     <Identity>
       <ID>Linux.Agent.Maintenance.Mode</ID>
-      <Version>1.0.0.4</Version>
+      <Version>1.0.1.0</Version>
     </Identity>
     <Name>Linux Agent Maintenance Mode</Name>
     <References>
@@ -32,7 +32,7 @@
   <TypeDefinitions>
     <EntityTypes>
       <ClassTypes>
-        <ClassType ID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" Accessibility="Internal" Abstract="false" Base="Unix!Microsoft.Unix.LocalApplication" Hosted="true" Singleton="false" />
+        <ClassType ID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" Accessibility="Internal" Abstract="false" Base="Unix!Microsoft.Unix.LocalApplication" Hosted="true" Singleton="false" Extension="false" />
       </ClassTypes>
     </EntityTypes>
     <ModuleTypes>
@@ -369,7 +369,7 @@ $api.LogScriptEvent($ScriptName,$EventNumber,4, $Script:Trace)
   </TypeDefinitions>
   <Monitoring>
     <Discoveries>
-      <Discovery ID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.Discovery" Target="Unix!Microsoft.Unix.Computer" Enabled="true" Remotable="true">
+      <Discovery ID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.Discovery" Enabled="true" Target="Unix!Microsoft.Unix.Computer" ConfirmDelivery="false" Remotable="true" Priority="Normal">
         <Category>Discovery</Category>
         <DiscoveryTypes>
           <DiscoveryClass TypeID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" />
@@ -377,7 +377,7 @@ $api.LogScriptEvent($ScriptName,$EventNumber,4, $Script:Trace)
         <DataSource ID="DS" TypeID="Unix!Microsoft.Unix.ScheduledClassSnapshotDataMapper">
           <Scheduler>
             <SimpleReccuringSchedule>
-              <Interval Unit="Seconds">600</Interval>
+              <Interval Unit="Seconds">14400</Interval>
               <SyncTime />
             </SimpleReccuringSchedule>
             <ExcludeDates />
@@ -402,6 +402,34 @@ $api.LogScriptEvent($ScriptName,$EventNumber,4, $Script:Trace)
       <Rule ID="Linux.Agent.Maintenance.Mode.MMLogEntryTriggersMM.Rule" Enabled="true" Target="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" ConfirmDelivery="false" Remotable="true" Priority="Normal" DiscardLevel="100">
         <Category>Maintenance</Category>
         <DataSources>
+          <!--TODO: MAYBE: Look into making interval overridable. Currently it's 300 seconds. Microsoft.Unix.SCXLog.VarPriv.DataSource uses Microsoft.Unix.SCXLog.Native.DataSource which is internal and doesn't expose interval as an overridable parameter.
+        
+        <DataSourceModuleType ID="Microsoft.Unix.SCXLog.Native.DataSource" Accessibility="Internal" Batching="true">
+        <Configuration>
+          <xsd:element name="Protocol" type="xsd:string" minOccurs="0" />
+          <xsd:element name="Host" type="xsd:string" />
+          <xsd:element name="Port" type="xsd:string" minOccurs="0" />
+          <xsd:element name="UserName" type="xsd:string" />
+          <xsd:element name="Password" type="xsd:string" />
+          <xsd:element name="LogFile" type="xsd:string" />
+          <xsd:element name="RegExpFilter" type="xsd:string" minOccurs="0" />
+          <xsd:element name="IndividualAlerts" type="xsd:boolean" minOccurs="0" />
+          <xsd:element name="QId" type="xsd:string" minOccurs="0" />
+          <xsd:element name="IntervalSeconds" type="xsd:string" />
+          <xsd:element name="ExpectedProblems" type="xsd:string" minOccurs="0" />
+          <xsd:element name="SkipCACheck" type="xsd:string" minOccurs="0" />
+          <xsd:element name="SkipCNCheck" type="xsd:string" minOccurs="0" />
+        </Configuration>
+        <ModuleImplementation Isolation="OwnProcess">
+          <Native>
+            <ClassID>00D78716-E1E7-431f-BBE0-5325AE246212</ClassID>
+          </Native>
+        </ModuleImplementation>
+        <OutputType>System!System.BaseData</OutputType>
+      </DataSourceModuleType>
+        
+        
+        -->
           <DataSource ID="EventDS" TypeID="Unix!Microsoft.Unix.SCXLog.VarPriv.DataSource">
             <Host>$Target/Host/Property[Type="Unix!Microsoft.Unix.Computer"]/PrincipalName$</Host>
             <LogFile>/var/log/scom-agentmm.log</LogFile>
@@ -447,7 +475,7 @@ $api.LogScriptEvent($ScriptName,$EventNumber,4, $Script:Trace)
       <DisplayStrings>
         <DisplayString ElementID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.Discovery">
           <Name>Linux Agent Maintenance Mode Class Discovery</Name>
-          <Description></Description>
+          <Description>Discovers Instance of Linux Agent Maintenance Mode Class on instances of Microsoft.Unix.Computer.</Description>
         </DisplayString>
         <DisplayString ElementID="Linux.Agent.Maintenance.Mode.MMLogEntryTriggersMM.Rule">
           <Name>Linux Agent Maintenance Mode - Linux Log Entry triggers Maintenance Mode Rule</Name>
@@ -455,7 +483,7 @@ $api.LogScriptEvent($ScriptName,$EventNumber,4, $Script:Trace)
         </DisplayString>
         <DisplayString ElementID="Linux.Agent.Maintenance.Mode.StopMMforAgentMMClass.Rule">
           <Name>Linux Agent Maintenance Mode - Stop Maintenance Mode for all instances of MM Linux Agent Class Rule</Name>
-          <Description>Stop Maintenance Mode for all instances of MM Linux Agent Class. Ensures MM agent class is out of MM to pick up stop MM log enteries</Description>
+          <Description>Stop Maintenance Mode for all instances of MM Linux Agent Class. Ensures MM agent class is out of MM to pick up stop MM log entries.</Description>
         </DisplayString>
         <DisplayString ElementID="Linux.Agent.Maintenance.Mode">
           <Name>Linux Agent Maintenance Mode</Name>
@@ -464,8 +492,188 @@ $api.LogScriptEvent($ScriptName,$EventNumber,4, $Script:Trace)
         <DisplayString ElementID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class">
           <Name>Linux Agent Maintenance Mode Class</Name>
         </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.StopMMforInstancesofClass.WriteAction">
+          <Name>Stop Maintenance Mode for All Instance of a Class</Name>
+          <Description>PowerShell script that stops Maintenance Mode for all instance of a class</Description>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.StopMMforInstancesofClass.WriteAction" SubElementID="SCOMManagementServer">
+          <Name>Management Server</Name>
+          <Description>Management server script will connect to.</Description>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.StopMMforInstancesofClass.WriteAction" SubElementID="ClassName">
+          <Name>Class Name</Name>
+          <Description>Class Name (not display name).</Description>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.TriggerMM.WriteAction" SubElementID="SCOMManagementServer">
+          <Name>Management Server</Name>
+          <Description>Management server script will connect to.</Description>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.TriggerMM.WriteAction">
+          <Name>Start or Stop Maintenance Mode on Linux Computer</Name>
+          <Description>Start or stop Maintenance Mode on Linux computer. Takes log entry as input.</Description>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.TriggerMM.WriteAction" SubElementID="Separator">
+          <Name>Separator</Name>
+          <Description>Field separator used to split log entry.</Description>
+        </DisplayString>
       </DisplayStrings>
       <KnowledgeArticles>
+        <KnowledgeArticle ElementID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.Discovery" Visible="true">
+          <MamlContent>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Summary</maml:title>
+              <maml:para>
+                Discovers Instance of<maml:ui>Linux Agent Maintenance Mode Class</maml:ui>(Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class) on instances of<maml:ui>UNIX/Linux Compute</maml:ui>r (Microsoft.Unix.Computer).
+              </maml:para>
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Configuration</maml:title>
+              <maml:table>
+                <maml:tableHeader>
+                  <maml:row>
+                    <maml:headerEntry>
+                      <maml:para>Parameter</maml:para>
+                    </maml:headerEntry>
+                    <maml:headerEntry>
+                      <maml:para>Default Value</maml:para>
+                    </maml:headerEntry>
+                    <maml:headerEntry>
+                      <maml:para>Description</maml:para>
+                    </maml:headerEntry>
+                  </maml:row>
+                </maml:tableHeader>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Interval</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>14400 (seconds)</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>Discovery interval.</maml:para>
+                  </maml:entry>
+                </maml:row>
+              </maml:table>
+              <maml:para> </maml:para>
+              <maml:para> </maml:para>
+            </maml:section>
+          </MamlContent>
+        </KnowledgeArticle>
+        <KnowledgeArticle ElementID="Linux.Agent.Maintenance.Mode.MMLogEntryTriggersMM.Rule" Visible="true">
+          <MamlContent>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Summary</maml:title>
+              <maml:para>Rule that collects Maintenance Mode log entries in log file. Uses data from log file to start, stop, or extend maintenance mode window for the Linux computer object.</maml:para>
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Configuration</maml:title>
+              <maml:table>
+                <maml:tableHeader>
+                  <maml:row>
+                    <maml:headerEntry>
+                      <maml:para>Parameter</maml:para>
+                    </maml:headerEntry>
+                    <maml:headerEntry>
+                      <maml:para>Default Value</maml:para>
+                    </maml:headerEntry>
+                    <maml:headerEntry>
+                      <maml:para>Description</maml:para>
+                    </maml:headerEntry>
+                  </maml:row>
+                </maml:tableHeader>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Log File</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>/var/log/scom-agentmm.log</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>Log file to monitor for Maintenance Mode entries.</maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Separator</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>,</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>Field separator used to split log entry.</maml:para>
+                  </maml:entry>
+                </maml:row>
+              </maml:table>
+            </maml:section>
+          </MamlContent>
+        </KnowledgeArticle>
+        <KnowledgeArticle ElementID="Linux.Agent.Maintenance.Mode.StopMMforAgentMMClass.Rule" Visible="true">
+          <MamlContent>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Summary</maml:title>
+              <maml:para>
+                Rule targeting the<maml:ui>All Management Server Resource Pool</maml:ui> that gets all instance of <maml:ui>Linux Agent Maintenance Mode</maml:ui>class that are in Maintenance Mode and stops Maintenance Mode for the class. If the class is in Maintenance Mode it will not detect new update or stop Maintenance Mode log entries. 
+              </maml:para>
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Configuration</maml:title>
+              <maml:table>
+                <maml:tableHeader>
+                  <maml:row>
+                    <maml:headerEntry>
+                      <maml:para>Parameter</maml:para>
+                    </maml:headerEntry>
+                    <maml:headerEntry>
+                      <maml:para>Default Value</maml:para>
+                    </maml:headerEntry>
+                    <maml:headerEntry>
+                      <maml:para>Description</maml:para>
+                    </maml:headerEntry>
+                  </maml:row>
+                </maml:tableHeader>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Interval</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>300 (seconds)</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>Interval between rule executions.</maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Management Server</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>.</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>Management server the script connects to. Script is expected to run on a management server.</maml:para>
+                    <maml:para> </maml:para>
+                    <maml:para>Should not need to be changed unless you are troubleshooting and issue. </maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Class</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>Name of class to stop maintenance mode on.</maml:para>
+                    <maml:para> </maml:para>
+                    <maml:para>Should not need to be changed unless you are troubleshooting and issue. </maml:para>
+                  </maml:entry>
+                </maml:row>
+              </maml:table>
+              <maml:para> </maml:para>
+              <maml:para> </maml:para>
+            </maml:section>
+          </MamlContent>
+        </KnowledgeArticle>
         <KnowledgeArticle ElementID="Linux.Agent.Maintenance.Mode" Visible="true">
           <MamlContent>
             <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">

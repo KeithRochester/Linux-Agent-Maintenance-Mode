@@ -1,5 +1,4 @@
-﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <TypeDefinitions>
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><TypeDefinitions>
     <ModuleTypes>
       <WriteActionModuleType ID="Linux.Agent.Maintenance.Mode.StopMMforInstancesofClass.WriteAction" Accessibility="Public" Batching="false">
         <Configuration>
@@ -38,5 +37,21 @@
         <InputType>System!System.BaseData</InputType>
       </WriteActionModuleType>
     </ModuleTypes>
-  </TypeDefinitions>
-</ManagementPackFragment>
+  </TypeDefinitions><LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.StopMMforInstancesofClass.WriteAction">
+          <Name>Stop Maintenance Mode for All Instance of a Class</Name>
+          <Description>PowerShell script that stops Maintenance Mode for all instance of a class</Description>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.StopMMforInstancesofClass.WriteAction" SubElementID="SCOMManagementServer">
+          <Name>Management Server</Name>
+          <Description>Management server script will connect to.</Description>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.StopMMforInstancesofClass.WriteAction" SubElementID="ClassName">
+          <Name>Class Name</Name>
+          <Description>Class Name (not display name).</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks></ManagementPackFragment>

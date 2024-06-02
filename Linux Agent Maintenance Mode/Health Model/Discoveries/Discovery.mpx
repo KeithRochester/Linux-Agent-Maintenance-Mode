@@ -1,7 +1,6 @@
-﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Monitoring>
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><Monitoring>
     <Discoveries>
-      <Discovery ID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.Discovery" Target="Unix!Microsoft.Unix.Computer" Enabled="true" Remotable="true">
+      <Discovery ID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.Discovery" Enabled="true" Target="Unix!Microsoft.Unix.Computer" ConfirmDelivery="false" Remotable="true" Priority="Normal">
         <Category>Discovery</Category>
         <DiscoveryTypes>
           <DiscoveryClass TypeID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" />
@@ -9,7 +8,7 @@
         <DataSource ID="DS" TypeID="Unix!Microsoft.Unix.ScheduledClassSnapshotDataMapper">
           <Scheduler>
             <SimpleReccuringSchedule>
-              <Interval Unit="Seconds">600</Interval>
+              <Interval Unit="Seconds">14400</Interval>
               <SyncTime />
             </SimpleReccuringSchedule>
             <ExcludeDates />
@@ -30,15 +29,57 @@
         </DataSource>
       </Discovery>
     </Discoveries>
-  </Monitoring>
-  <LanguagePacks>
+  </Monitoring><LanguagePacks>
     <LanguagePack ID="ENU" IsDefault="true">
       <DisplayStrings>
         <DisplayString ElementID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.Discovery">
           <Name>Linux Agent Maintenance Mode Class Discovery</Name>
-          <Description></Description>
+          <Description>Discovers Instance of Linux Agent Maintenance Mode Class on instances of Microsoft.Unix.Computer.</Description>
         </DisplayString>
       </DisplayStrings>
+      <KnowledgeArticles>
+        <KnowledgeArticle ElementID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.Discovery" Visible="true">
+          <MamlContent>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Summary</maml:title>
+              <maml:para>
+                Discovers Instance of<maml:ui>Linux Agent Maintenance Mode Class</maml:ui>(Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class) on instances of<maml:ui>UNIX/Linux Compute</maml:ui>r (Microsoft.Unix.Computer).
+              </maml:para>
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Configuration</maml:title>
+              <maml:table>
+                <maml:tableHeader>
+                  <maml:row>
+                    <maml:headerEntry>
+                      <maml:para>Parameter</maml:para>
+                    </maml:headerEntry>
+                    <maml:headerEntry>
+                      <maml:para>Default Value</maml:para>
+                    </maml:headerEntry>
+                    <maml:headerEntry>
+                      <maml:para>Description</maml:para>
+                    </maml:headerEntry>
+                  </maml:row>
+                </maml:tableHeader>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Interval</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>14400 (seconds)</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>Discovery interval.</maml:para>
+                  </maml:entry>
+                </maml:row>
+              </maml:table>
+              <maml:para> </maml:para>
+              <maml:para> </maml:para>
+            </maml:section>
+          </MamlContent>
+        </KnowledgeArticle>
+
+      </KnowledgeArticles>
     </LanguagePack>
-  </LanguagePacks>
-</ManagementPackFragment>
+  </LanguagePacks></ManagementPackFragment>

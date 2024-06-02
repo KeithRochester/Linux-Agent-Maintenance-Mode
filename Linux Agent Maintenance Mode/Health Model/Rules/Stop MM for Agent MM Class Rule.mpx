@@ -1,5 +1,4 @@
-﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Monitoring>
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><Monitoring>
     <Rules>
       <Rule ID="Linux.Agent.Maintenance.Mode.StopMMforAgentMMClass.Rule" Target="SC!Microsoft.SystemCenter.AllManagementServersPool" Enabled="true" ConfirmDelivery="false" Remotable="true" Priority="Normal" DiscardLevel="100">
         <Category>Operations</Category>
@@ -22,16 +21,82 @@
         </WriteActions>
       </Rule>
     </Rules>
-  </Monitoring>
-
-  <LanguagePacks>
+  </Monitoring><LanguagePacks>
     <LanguagePack ID="ENU" IsDefault="true">
       <DisplayStrings>
         <DisplayString ElementID="Linux.Agent.Maintenance.Mode.StopMMforAgentMMClass.Rule">
           <Name>Linux Agent Maintenance Mode - Stop Maintenance Mode for all instances of MM Linux Agent Class Rule</Name>
-          <Description>Stop Maintenance Mode for all instances of MM Linux Agent Class. Ensures MM agent class is out of MM to pick up stop MM log enteries</Description>
+          <Description>Stop Maintenance Mode for all instances of MM Linux Agent Class. Ensures MM agent class is out of MM to pick up stop MM log entries.</Description>
         </DisplayString>
       </DisplayStrings>
+      <KnowledgeArticles>
+        <KnowledgeArticle ElementID="Linux.Agent.Maintenance.Mode.StopMMforAgentMMClass.Rule" Visible="true">
+          <MamlContent>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Summary</maml:title>
+              <maml:para>
+                Rule targeting the<maml:ui>All Management Server Resource Pool</maml:ui> that gets all instance of <maml:ui>Linux Agent Maintenance Mode</maml:ui>class that are in Maintenance Mode and stops Maintenance Mode for the class. If the class is in Maintenance Mode it will not detect new update or stop Maintenance Mode log entries. 
+              </maml:para>
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Configuration</maml:title>
+              <maml:table>
+                <maml:tableHeader>
+                  <maml:row>
+                    <maml:headerEntry>
+                      <maml:para>Parameter</maml:para>
+                    </maml:headerEntry>
+                    <maml:headerEntry>
+                      <maml:para>Default Value</maml:para>
+                    </maml:headerEntry>
+                    <maml:headerEntry>
+                      <maml:para>Description</maml:para>
+                    </maml:headerEntry>
+                  </maml:row>
+                </maml:tableHeader>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Interval</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>300 (seconds)</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>Interval between rule executions.</maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Management Server</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>.</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>Management server the script connects to. Script is expected to run on a management server.</maml:para>
+                    <maml:para> </maml:para>
+                    <maml:para>Should not need to be changed unless you are troubleshooting and issue. </maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Class</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>Name of class to stop maintenance mode on.</maml:para>
+                    <maml:para> </maml:para>
+                    <maml:para>Should not need to be changed unless you are troubleshooting and issue. </maml:para>
+                  </maml:entry>
+                </maml:row>
+              </maml:table>
+              <maml:para> </maml:para>
+              <maml:para> </maml:para>
+            </maml:section>
+          </MamlContent>
+        </KnowledgeArticle>
+      </KnowledgeArticles>
     </LanguagePack>
-  </LanguagePacks>
-</ManagementPackFragment>
+  </LanguagePacks></ManagementPackFragment>
