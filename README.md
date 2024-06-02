@@ -14,7 +14,7 @@ Maintenance mode is controled by writing a entries to a log file on the agent.
 
 The log file entries must follow a set format. 
 
-**Starting Maintenance Mode**
+**Starting/Extending Maintenance Mode**
 
 #TIMESTAMP#,START,#DURATION#,#COMMENT#,#REASON#
 
