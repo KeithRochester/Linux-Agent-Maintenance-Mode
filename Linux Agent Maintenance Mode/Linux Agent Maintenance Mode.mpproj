@@ -34,7 +34,7 @@
       <PackageToBundle>false</PackageToBundle>
     </ManagementPackReference>
     <ManagementPackReference Include="Microsoft.Unix.Library">
-      <HintPath>D:\OneDrive\Documents\GitHub\Linux-Agent-Maintenance-Mode\Linux Agent Maintenance Mode\Resources\Referenced MPs\Microsoft.Unix.Library.mp</HintPath>
+      <HintPath>.\Resources\Referenced MPs\Microsoft.Unix.Library.mp</HintPath>
       <Alias>Unix</Alias>
       <MinVersion>10.19.1147.0</MinVersion>
       <PackageToBundle>False</PackageToBundle>

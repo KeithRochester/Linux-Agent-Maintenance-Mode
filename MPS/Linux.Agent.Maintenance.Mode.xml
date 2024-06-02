@@ -3,7 +3,7 @@
   <Manifest>
     <Identity>
       <ID>Linux.Agent.Maintenance.Mode</ID>
-      <Version>1.0.1.0</Version>
+      <Version>1.0.1.2</Version>
     </Identity>
     <Name>Linux Agent Maintenance Mode</Name>
     <References>
