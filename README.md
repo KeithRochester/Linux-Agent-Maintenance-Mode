@@ -6,9 +6,9 @@
 
 ## Introduction
 
-Management Pack used to start or stop maintenance mode for a Unix/Linux computer from the agent.
+Management Pack used to start, extend, or stop maintenance mode for a Unix/Linux computer from the agent.
 
-Maintenance mode is control by writing a entries to a log file.   
+Maintenance mode is control by writing a entries to a log file on the agent.   
 
 ## Log File Entries
 
