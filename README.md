@@ -2,7 +2,7 @@
 
 ## MP and Visual Studio Files
 * [Download MP](MPS/Linux.Agent.Maintenance.Mode.mp)
-* [Visual Studio Solution File](Linux.Agent.Maintenance.Mode/)
+* [Visual Studio Solution File](Linux%20Agent%20Maintenance%20Mode/)
 
 ## Introduction
 
