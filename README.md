@@ -37,7 +37,7 @@ The log file entries must follow a set format.
 
 **Stopping Maintenance Mode**
 
-#TIMESTAMP#,START
+#TIMESTAMP#,STOP
 
 ### _Example_
 >01/06/2024 06:30,STOP
