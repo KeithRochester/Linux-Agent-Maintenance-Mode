@@ -8,7 +8,7 @@
 
 Management Pack used to start, extend, or stop maintenance mode for a Unix/Linux computer from the agent.
 
-Maintenance mode is controled by writing entries to a log file on the agent.   
+Maintenance mode is controled by writing entries to a log file (**/var/log/scom-agentmm.log**) on the agent.   
 
 ## Log File Entries
 
