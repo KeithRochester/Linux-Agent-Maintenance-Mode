@@ -31,7 +31,7 @@
   <ItemGroup>
     <ManagementPackReference Include="Microsoft.SystemCenter.Library">
       <Alias>SC</Alias>
-      <PackageToBundle>false</PackageToBundle>
+      <PackageToBundle>False</PackageToBundle>
     </ManagementPackReference>
     <ManagementPackReference Include="Microsoft.Unix.Library">
       <HintPath>.\Resources\Referenced MPs\Microsoft.Unix.Library.mp</HintPath>
@@ -53,11 +53,17 @@
     </ManagementPackReference>
     <ManagementPackReference Include="Microsoft.SystemCenter.Visualization.Library">
       <Alias>Visualization</Alias>
-      <PackageToBundle>false</PackageToBundle>
+      <PackageToBundle>False</PackageToBundle>
     </ManagementPackReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Health Model\Discoveries\Discovery.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Health Model\Rules\Collect MM 5001 Script Events.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Health Model\Rules\Collect MM 5002 Script Events.mpx">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Health Model\Rules\Log Entry Triggers MM Rule.mpx">
@@ -69,7 +75,13 @@
     <Compile Include="ManagementPack.mpx">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Presentation\Views.mpx">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Service Model\Classes\Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Type Library\Module Types\Write Actions\CreateEventFromLogFileEntry.WriteAction.mpx">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Type Library\Module Types\Write Actions\StopMMforInstancesofClass.WriteAction.mpx">
@@ -83,6 +95,7 @@
     <Folder Include="Health Model" />
     <Folder Include="Health Model\Discoveries" />
     <Folder Include="Health Model\Rules" />
+    <Folder Include="Presentation" />
     <Folder Include="Resources\Scripts" />
     <Folder Include="Service Model\Classes" />
     <Folder Include="Type Library" />

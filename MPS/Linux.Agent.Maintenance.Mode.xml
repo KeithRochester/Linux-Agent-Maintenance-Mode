@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ManagementPack SchemaVersion="2.0" ContentReadable="true" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+﻿<?xml version="1.0" encoding="utf-8"?><ManagementPack xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" ContentReadable="true" SchemaVersion="2.0" OriginalSchemaVersion="2.0">
   <Manifest>
     <Identity>
       <ID>Linux.Agent.Maintenance.Mode</ID>
-      <Version>1.0.1.2</Version>
+      <Version>1.0.1.42</Version>
     </Identity>
     <Name>Linux Agent Maintenance Mode</Name>
     <References>
@@ -36,11 +35,25 @@
       </ClassTypes>
     </EntityTypes>
     <ModuleTypes>
+      <WriteActionModuleType ID="Linux.Agent.Maintenance.Mode.CreateEventFromLogFileEntry.WriteAction" Accessibility="Internal" Batching="false">
+        <Configuration><xsd:element xmlns:xsd="http://www.w3.org/2001/XMLSchema" minOccurs="1" name="EventOriginId" type="xsd:string" /><xsd:element xmlns:xsd="http://www.w3.org/2001/XMLSchema" minOccurs="1" name="PublisherId" type="xsd:string" /><xsd:element xmlns:xsd="http://www.w3.org/2001/XMLSchema" minOccurs="1" name="PublisherName" type="xsd:string" /><xsd:element xmlns:xsd="http://www.w3.org/2001/XMLSchema" minOccurs="1" name="Channel" type="xsd:string" /><xsd:element xmlns:xsd="http://www.w3.org/2001/XMLSchema" minOccurs="1" name="LoggingComputer" type="xsd:string" /><xsd:element xmlns:xsd="http://www.w3.org/2001/XMLSchema" minOccurs="1" name="EventNumber" type="xsd:int" /><xsd:element xmlns:xsd="http://www.w3.org/2001/XMLSchema" minOccurs="1" name="EventCategory" type="xsd:int" /><xsd:element xmlns:xsd="http://www.w3.org/2001/XMLSchema" minOccurs="1" name="EventLevel" type="xsd:int" /><xsd:element xmlns:xsd="http://www.w3.org/2001/XMLSchema" minOccurs="0" name="UserName" type="xsd:string" /><xsd:element xmlns:xsd="http://www.w3.org/2001/XMLSchema" minOccurs="1" name="Description" type="xsd:string" /></Configuration>
+        <ModuleImplementation Isolation="Any">
+          <Composite>
+            <MemberModules>
+              <ConditionDetection ID="Mapper" TypeID="System!System.Event.GenericDataMapper"><EventOriginId>$Config/EventOriginId$</EventOriginId><PublisherId>$Config/PublisherId$</PublisherId><PublisherName>$Config/PublisherName$</PublisherName><Channel>$Config/Channel$</Channel><LoggingComputer>$Config/LoggingComputer$</LoggingComputer><EventNumber>$Config/EventNumber$</EventNumber><EventCategory>$Config/EventCategory$</EventCategory><EventLevel>$Config/EventLevel$</EventLevel><UserName>$Config/UserName$</UserName><Description>$Config/Description$</Description><Params><Param>$Config/Description$</Param></Params></ConditionDetection>
+              <WriteAction ID="CollectEvent" TypeID="SC!Microsoft.SystemCenter.CollectEvent" />
+            </MemberModules>
+            <Composition>
+              <Node ID="CollectEvent">
+                <Node ID="Mapper" />
+              </Node>
+            </Composition>
+          </Composite>
+        </ModuleImplementation>
+        <InputType>System!System.BaseData</InputType>
+      </WriteActionModuleType>
       <WriteActionModuleType ID="Linux.Agent.Maintenance.Mode.StopMMforInstancesofClass.WriteAction" Accessibility="Public" Batching="false">
-        <Configuration>
-          <xsd:element minOccurs="1" name="SCOMManagementServer" type="xsd:string" xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
-          <xsd:element minOccurs="1" name="ClassName" type="xsd:string" xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
-        </Configuration>
+        <Configuration><xsd:element xmlns:xsd="http://www.w3.org/2001/XMLSchema" minOccurs="1" name="SCOMManagementServer" type="xsd:string" /><xsd:element xmlns:xsd="http://www.w3.org/2001/XMLSchema" minOccurs="1" name="ClassName" type="xsd:string" /></Configuration>
         <OverrideableParameters>
           <OverrideableParameter ID="SCOMManagementServer" Selector="$Config/SCOMManagementServer$" ParameterType="string" />
           <OverrideableParameter ID="ClassName" Selector="$Config/ClassName$" ParameterType="string" />
@@ -48,9 +61,7 @@
         <ModuleImplementation Isolation="Any">
           <Composite>
             <MemberModules>
-              <WriteAction ID="Script" TypeID="Windows!Microsoft.Windows.PowerShellWriteAction">
-                <ScriptName>Stop-MMForAllInstancesOfClass.ps1</ScriptName>
-                <ScriptBody><![CDATA[[CmdletBinding()]
+              <WriteAction ID="Script" TypeID="Windows!Microsoft.Windows.PowerShellWriteAction"><ScriptName>Stop-MMForAllInstancesOfClass.ps1</ScriptName><ScriptBody>[CmdletBinding()]
 Param(
 
   [Parameter(Mandatory=$false)]
@@ -63,14 +74,14 @@ Param(
 
 
 
-<#
+&lt;#
 Test values 
 
 $SCOMManagementServer = "."
 $ClassName = "Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" # valid class name
 #$ClassName = "Broken.class" #invalid class 
 
-#>
+#&gt;
 
 
 $ScriptName = "Stop-MMForAllInstancesOfClass.ps1"
@@ -149,19 +160,7 @@ $api.LogScriptEvent($ScriptName,$EventNumber,4, $Script:Trace)
 
 
 
-]]></ScriptBody>
-                <Parameters>
-                  <Parameter>
-                    <Name>SCOMManagementServer</Name>
-                    <Value>$Config/SCOMManagementServer$</Value>
-                  </Parameter>
-                  <Parameter>
-                    <Name>ClassName</Name>
-                    <Value>$Config/ClassName$</Value>
-                  </Parameter>
-                </Parameters>
-                <TimeoutSeconds>300</TimeoutSeconds>
-              </WriteAction>
+</ScriptBody><Parameters><Parameter><Name>SCOMManagementServer</Name><Value>$Config/SCOMManagementServer$</Value></Parameter><Parameter><Name>ClassName</Name><Value>$Config/ClassName$</Value></Parameter></Parameters><TimeoutSeconds>300</TimeoutSeconds></WriteAction>
             </MemberModules>
             <Composition>
               <Node ID="Script" />
@@ -172,12 +171,7 @@ $api.LogScriptEvent($ScriptName,$EventNumber,4, $Script:Trace)
         <InputType>System!System.BaseData</InputType>
       </WriteActionModuleType>
       <WriteActionModuleType ID="Linux.Agent.Maintenance.Mode.TriggerMM.WriteAction" Accessibility="Public" Batching="false">
-        <Configuration>
-          <xsd:element minOccurs="1" name="SCOMManagementServer" type="xsd:string" xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
-          <xsd:element minOccurs="1" name="id" type="xsd:string" xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
-          <xsd:element minOccurs="1" name="MMEvent" type="xsd:string" xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
-          <xsd:element minOccurs="1" name="Separator" type="xsd:string" xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
-        </Configuration>
+        <Configuration><xsd:element xmlns:xsd="http://www.w3.org/2001/XMLSchema" minOccurs="1" name="SCOMManagementServer" type="xsd:string" /><xsd:element xmlns:xsd="http://www.w3.org/2001/XMLSchema" minOccurs="1" name="id" type="xsd:string" /><xsd:element xmlns:xsd="http://www.w3.org/2001/XMLSchema" minOccurs="1" name="MMEvent" type="xsd:string" /><xsd:element xmlns:xsd="http://www.w3.org/2001/XMLSchema" minOccurs="1" name="Separator" type="xsd:string" /></Configuration>
         <OverrideableParameters>
           <OverrideableParameter ID="SCOMManagementServer" Selector="$Config/SCOMManagementServer$" ParameterType="string" />
           <OverrideableParameter ID="Separator" Selector="$Config/Separator$" ParameterType="string" />
@@ -185,9 +179,7 @@ $api.LogScriptEvent($ScriptName,$EventNumber,4, $Script:Trace)
         <ModuleImplementation Isolation="Any">
           <Composite>
             <MemberModules>
-              <WriteAction ID="Script" TypeID="Windows!Microsoft.Windows.PowerShellWriteAction">
-                <ScriptName>Set-LinuxAgentMM.ps1</ScriptName>
-                <ScriptBody><![CDATA[[CmdletBinding()]
+              <WriteAction ID="Script" TypeID="Windows!Microsoft.Windows.PowerShellWriteAction"><ScriptName>Set-LinuxAgentMM.ps1</ScriptName><ScriptBody>[CmdletBinding()]
 Param(
 
   [Parameter(Mandatory=$false)]
@@ -206,7 +198,7 @@ Param(
 
 
 
-<#
+&lt;#
 Test values 
 
 $id = "00000000-0000-0000-0000-000000000000"
@@ -214,11 +206,11 @@ $SCOMManagementServer = "."
 $MMEvent = "19/10/2022 14:30,START,60,Testing MM,PlannedApplicationMaintenance" #Start
 $MMEvent = "19/10/2022 14:30,STOP" #Stop
 $Separator = ","
-#>
+#&gt;
 $Action = $MMEvent.split($Separator)[1]
 
 
-<# Valid MM Reasons
+&lt;# Valid MM Reasons
 “ApplicationInstallation",
 "ApplicationUnresponsive",
 "LossOfNetworkConnectivity",
@@ -230,7 +222,7 @@ $Action = $MMEvent.split($Separator)[1]
 "UnplannedApplicationMaintenance",
 "UnplannedHardwareMaintenance",
 "UnplannedOther”
-#>
+#&gt;
 
 
 $EventNumber = 5002
@@ -335,27 +327,7 @@ AppendLog ("Script completed")
 Write-Verbose $Script:Trace
 $api.LogScriptEvent($ScriptName,$EventNumber,4, $Script:Trace)
 
-]]></ScriptBody>
-                <Parameters>
-                  <Parameter>
-                    <Name>SCOMManagementServer</Name>
-                    <Value>$Config/SCOMManagementServer$</Value>
-                  </Parameter>
-                  <Parameter>
-                    <Name>id</Name>
-                    <Value>$Config/id$</Value>
-                  </Parameter>
-                  <Parameter>
-                    <Name>MMEvent</Name>
-                    <Value>$Config/MMEvent$</Value>
-                  </Parameter>
-                  <Parameter>
-                    <Name>Separator</Name>
-                    <Value>$Config/Separator$</Value>
-                  </Parameter>
-                </Parameters>
-                <TimeoutSeconds>300</TimeoutSeconds>
-              </WriteAction>
+</ScriptBody><Parameters><Parameter><Name>SCOMManagementServer</Name><Value>$Config/SCOMManagementServer$</Value></Parameter><Parameter><Name>id</Name><Value>$Config/id$</Value></Parameter><Parameter><Name>MMEvent</Name><Value>$Config/MMEvent$</Value></Parameter><Parameter><Name>Separator</Name><Value>$Config/Separator$</Value></Parameter></Parameters><TimeoutSeconds>300</TimeoutSeconds></WriteAction>
             </MemberModules>
             <Composition>
               <Node ID="Script" />
@@ -374,108 +346,81 @@ $api.LogScriptEvent($ScriptName,$EventNumber,4, $Script:Trace)
         <DiscoveryTypes>
           <DiscoveryClass TypeID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" />
         </DiscoveryTypes>
-        <DataSource ID="DS" TypeID="Unix!Microsoft.Unix.ScheduledClassSnapshotDataMapper">
-          <Scheduler>
-            <SimpleReccuringSchedule>
-              <Interval Unit="Seconds">14400</Interval>
-              <SyncTime />
-            </SimpleReccuringSchedule>
-            <ExcludeDates />
-          </Scheduler>
-          <ClassId>$MPElement[Name="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class"]$</ClassId>
-          <InstanceSettings>
-            <Settings>
-              <Setting>
-                <Name>$MPElement[Name="Unix!Microsoft.Unix.Computer"]/PrincipalName$</Name>
-                <Value>$Target/Property[Type="Unix!Microsoft.Unix.Computer"]/PrincipalName$</Value>
-              </Setting>
-              <Setting>
-                <Name>$MPElement[Name="System!System.Entity"]/DisplayName$</Name>
-                <Value>Agent Maintenance Mode</Value>
-              </Setting>
-            </Settings>
-          </InstanceSettings>
-        </DataSource>
+        <DataSource ID="DS" TypeID="Unix!Microsoft.Unix.ScheduledClassSnapshotDataMapper"><Scheduler><SimpleReccuringSchedule><Interval Unit="Seconds">14400</Interval><SyncTime /></SimpleReccuringSchedule><ExcludeDates /></Scheduler><ClassId>$MPElement[Name="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class"]$</ClassId><InstanceSettings><Settings><Setting><Name>$MPElement[Name="Unix!Microsoft.Unix.Computer"]/PrincipalName$</Name><Value>$Target/Property[Type="Unix!Microsoft.Unix.Computer"]/PrincipalName$</Value></Setting><Setting><Name>$MPElement[Name="System!System.Entity"]/DisplayName$</Name><Value>Agent Maintenance Mode</Value></Setting></Settings></InstanceSettings></DataSource>
       </Discovery>
     </Discoveries>
     <Rules>
-      <Rule ID="Linux.Agent.Maintenance.Mode.MMLogEntryTriggersMM.Rule" Enabled="true" Target="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" ConfirmDelivery="false" Remotable="true" Priority="Normal" DiscardLevel="100">
-        <Category>Maintenance</Category>
+      <Rule ID="Linux.Agent.Maintenance.Mode.CollectStopMMAgentForAllInstancesScriptEvents.Rule" Enabled="true" Target="SC!Microsoft.SystemCenter.ManagementServer" ConfirmDelivery="true" Remotable="true" Priority="Normal" DiscardLevel="100">
+        <Category>EventCollection</Category>
         <DataSources>
-          <!--TODO: MAYBE: Look into making interval overridable. Currently it's 300 seconds. Microsoft.Unix.SCXLog.VarPriv.DataSource uses Microsoft.Unix.SCXLog.Native.DataSource which is internal and doesn't expose interval as an overridable parameter.
-        
-        <DataSourceModuleType ID="Microsoft.Unix.SCXLog.Native.DataSource" Accessibility="Internal" Batching="true">
-        <Configuration>
-          <xsd:element name="Protocol" type="xsd:string" minOccurs="0" />
-          <xsd:element name="Host" type="xsd:string" />
-          <xsd:element name="Port" type="xsd:string" minOccurs="0" />
-          <xsd:element name="UserName" type="xsd:string" />
-          <xsd:element name="Password" type="xsd:string" />
-          <xsd:element name="LogFile" type="xsd:string" />
-          <xsd:element name="RegExpFilter" type="xsd:string" minOccurs="0" />
-          <xsd:element name="IndividualAlerts" type="xsd:boolean" minOccurs="0" />
-          <xsd:element name="QId" type="xsd:string" minOccurs="0" />
-          <xsd:element name="IntervalSeconds" type="xsd:string" />
-          <xsd:element name="ExpectedProblems" type="xsd:string" minOccurs="0" />
-          <xsd:element name="SkipCACheck" type="xsd:string" minOccurs="0" />
-          <xsd:element name="SkipCNCheck" type="xsd:string" minOccurs="0" />
-        </Configuration>
-        <ModuleImplementation Isolation="OwnProcess">
-          <Native>
-            <ClassID>00D78716-E1E7-431f-BBE0-5325AE246212</ClassID>
-          </Native>
-        </ModuleImplementation>
-        <OutputType>System!System.BaseData</OutputType>
-      </DataSourceModuleType>
-        
-        
-        -->
-          <DataSource ID="EventDS" TypeID="Unix!Microsoft.Unix.SCXLog.VarPriv.DataSource">
-            <Host>$Target/Host/Property[Type="Unix!Microsoft.Unix.Computer"]/PrincipalName$</Host>
-            <LogFile>/var/log/scom-agentmm.log</LogFile>
-            <UserName>$RunAs[Name="Unix!Microsoft.Unix.ActionAccount"]/UserName$</UserName>
-            <Password>$RunAs[Name="Unix!Microsoft.Unix.ActionAccount"]/Password$</Password>
-            <RegExpFilter>START|STOP</RegExpFilter>
-            <IndividualAlerts>true</IndividualAlerts>
-          </DataSource>
+          <DataSource ID="DS" TypeID="Windows!Microsoft.Windows.EventCollector"><ComputerName>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/NetworkName$</ComputerName><LogName>Operations Manager</LogName><AllowProxying>false</AllowProxying><Expression><And><Expression><SimpleExpression><ValueExpression><XPathQuery Type="UnsignedInteger">EventDisplayNumber</XPathQuery></ValueExpression><Operator>Equal</Operator><ValueExpression><Value Type="UnsignedInteger">5001</Value></ValueExpression></SimpleExpression></Expression><Expression><SimpleExpression><ValueExpression><XPathQuery Type="String">PublisherName</XPathQuery></ValueExpression><Operator>Equal</Operator><ValueExpression><Value Type="String">Health Service Script</Value></ValueExpression></SimpleExpression></Expression><Expression><SimpleExpression><ValueExpression><XPathQuery Type="String">Params/Param[1]</XPathQuery></ValueExpression><Operator>Equal</Operator><ValueExpression><Value Type="String">Stop-MMForAllInstancesOfClass.ps1</Value></ValueExpression></SimpleExpression></Expression></And></Expression></DataSource>
         </DataSources>
         <WriteActions>
-          <WriteAction ID="TriggerMMPoSh" TypeID="Linux.Agent.Maintenance.Mode.TriggerMM.WriteAction">
-            <SCOMManagementServer>.</SCOMManagementServer>
-            <id>$Target/Id$</id>
-            <MMEvent>$Data/EventDescription$</MMEvent>
-            <Separator>,</Separator>
-          </WriteAction>
+          <WriteAction ID="WriteToDB" TypeID="SC!Microsoft.SystemCenter.CollectEvent" />
         </WriteActions>
       </Rule>
-      <Rule ID="Linux.Agent.Maintenance.Mode.StopMMforAgentMMClass.Rule" Target="SC!Microsoft.SystemCenter.AllManagementServersPool" Enabled="true" ConfirmDelivery="false" Remotable="true" Priority="Normal" DiscardLevel="100">
-        <Category>Operations</Category>
+      <Rule ID="Linux.Agent.Maintenance.Mode.CollectLinuxStartStopScriptEvents.Rule" Enabled="true" Target="SC!Microsoft.SystemCenter.ManagementServer" ConfirmDelivery="true" Remotable="true" Priority="Normal" DiscardLevel="100">
+        <Category>EventCollection</Category>
         <DataSources>
-          <DataSource ID="DS" TypeID="System!System.Scheduler">
-            <Scheduler>
-              <SimpleReccuringSchedule>
-                <Interval Unit="Seconds">300</Interval>
-                <SyncTime></SyncTime>
-              </SimpleReccuringSchedule>
-              <ExcludeDates></ExcludeDates>
-            </Scheduler>
-          </DataSource>
+          <DataSource ID="DS" TypeID="Windows!Microsoft.Windows.EventCollector"><ComputerName>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/NetworkName$</ComputerName><LogName>Operations Manager</LogName><AllowProxying>false</AllowProxying><Expression><And><Expression><SimpleExpression><ValueExpression><XPathQuery Type="UnsignedInteger">EventDisplayNumber</XPathQuery></ValueExpression><Operator>Equal</Operator><ValueExpression><Value Type="UnsignedInteger">5002</Value></ValueExpression></SimpleExpression></Expression><Expression><SimpleExpression><ValueExpression><XPathQuery Type="String">PublisherName</XPathQuery></ValueExpression><Operator>Equal</Operator><ValueExpression><Value Type="String">Health Service Script</Value></ValueExpression></SimpleExpression></Expression><Expression><SimpleExpression><ValueExpression><XPathQuery Type="String">Params/Param[1]</XPathQuery></ValueExpression><Operator>Equal</Operator><ValueExpression><Value Type="String">Set-LinuxAgentMM.ps1</Value></ValueExpression></SimpleExpression></Expression></And></Expression></DataSource>
         </DataSources>
         <WriteActions>
-          <WriteAction ID="WA" TypeID="Linux.Agent.Maintenance.Mode.StopMMforInstancesofClass.WriteAction">
-            <SCOMManagementServer>.</SCOMManagementServer>
-            <ClassName>Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class</ClassName>
-          </WriteAction>
+          <WriteAction ID="WriteToDB" TypeID="SC!Microsoft.SystemCenter.CollectEvent" />
+        </WriteActions>
+      </Rule>
+      <Rule ID="Linux.Agent.Maintenance.Mode.MMLogEntryTriggersMM.Rule" Enabled="true" Target="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" ConfirmDelivery="false" Remotable="true" Priority="Normal" DiscardLevel="100">
+        <Category>EventCollection</Category>
+        <DataSources>
+          <DataSource ID="EventDS" TypeID="Unix!Microsoft.Unix.SCXLog.VarPriv.DataSource"><Host>$Target/Host/Property[Type="Unix!Microsoft.Unix.Computer"]/PrincipalName$</Host><LogFile>/var/log/scom-agentmm.log</LogFile><UserName>$RunAs[Name="Unix!Microsoft.Unix.ActionAccount"]/UserName$</UserName><Password>$RunAs[Name="Unix!Microsoft.Unix.ActionAccount"]/Password$</Password><RegExpFilter>START|STOP</RegExpFilter><IndividualAlerts>true</IndividualAlerts></DataSource>
+        </DataSources>
+        <WriteActions>
+          <WriteAction ID="TriggerMMPoSh" TypeID="Linux.Agent.Maintenance.Mode.TriggerMM.WriteAction"><SCOMManagementServer>.</SCOMManagementServer><id>$Target/Id$</id><MMEvent>$Data/EventDescription$</MMEvent><Separator>,</Separator></WriteAction>
+          <WriteAction ID="CreateEvent" TypeID="Linux.Agent.Maintenance.Mode.CreateEventFromLogFileEntry.WriteAction"><EventOriginId>$Target/Id$</EventOriginId><PublisherId>$Target/Id$</PublisherId><PublisherName>Linux Agent Maintenance Mode</PublisherName><Channel>/var/log/scom-agentmm.log</Channel><LoggingComputer>$Target/Host/Property[Type="Unix!Microsoft.Unix.Computer"]/PrincipalName$</LoggingComputer><EventNumber>5003</EventNumber><EventCategory>0</EventCategory><EventLevel>0</EventLevel><UserName /><Description>$Data/EventDescription$</Description></WriteAction>
+        </WriteActions>
+      </Rule>
+      <Rule ID="Linux.Agent.Maintenance.Mode.StopMMforAgentMMClass.Rule" Enabled="true" Target="SC!Microsoft.SystemCenter.AllManagementServersPool" ConfirmDelivery="false" Remotable="true" Priority="Normal" DiscardLevel="100">
+        <Category>Operations</Category>
+        <DataSources>
+          <DataSource ID="DS" TypeID="System!System.Scheduler"><Scheduler><SimpleReccuringSchedule><Interval Unit="Seconds">300</Interval><SyncTime></SyncTime></SimpleReccuringSchedule><ExcludeDates></ExcludeDates></Scheduler></DataSource>
+        </DataSources>
+        <WriteActions>
+          <WriteAction ID="WA" TypeID="Linux.Agent.Maintenance.Mode.StopMMforInstancesofClass.WriteAction"><SCOMManagementServer>.</SCOMManagementServer><ClassName>Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class</ClassName></WriteAction>
         </WriteActions>
       </Rule>
     </Rules>
   </Monitoring>
+  <Presentation>
+    <Views>
+      <View ID="Linux.Agent.Maintenance.Mode.MMLogEvents.View" Accessibility="Public" Enabled="true" Target="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" TypeID="SC!Microsoft.SystemCenter.EventViewType" Visible="true">
+        <Category>Operations</Category><Criteria><RuleList><Rule>$MPElement[Name="Linux.Agent.Maintenance.Mode.MMLogEntryTriggersMM.Rule"]$</Rule></RuleList></Criteria><Presentation><ColumnInfo Index="0" SortIndex="0" Width="100" Grouped="false" Sorted="false" IsSortable="true" Visible="true" SortOrder="Ascending"><Name>Level</Name><Id>LevelId</Id></ColumnInfo><ColumnInfo Index="1" SortIndex="1" Width="100" Grouped="false" Sorted="true" IsSortable="true" Visible="true" SortOrder="Descending"><Name>Date and Time</Name><Id>TimeGenerated</Id></ColumnInfo><ColumnInfo Index="2" SortIndex="-1" Width="100" Grouped="false" Sorted="false" IsSortable="true" Visible="true" SortOrder="Ascending"><Name>Source</Name><Id>PublisherName</Id></ColumnInfo><ColumnInfo Index="3" SortIndex="-1" Width="100" Grouped="false" Sorted="false" IsSortable="true" Visible="true" SortOrder="Ascending"><Name>Name</Name><Id>MonitoringObjectDisplayName</Id></ColumnInfo><ColumnInfo Index="4" SortIndex="-1" Width="100" Grouped="false" Sorted="false" IsSortable="true" Visible="true" SortOrder="Ascending"><Name>User</Name><Id>User</Id></ColumnInfo><ColumnInfo Index="5" SortIndex="-1" Width="100" Grouped="false" Sorted="false" IsSortable="true" Visible="true" SortOrder="Ascending"><Name>Event Number</Name><Id>Number</Id></ColumnInfo><ColumnInfo Index="6" SortIndex="-1" Width="100" Grouped="false" Sorted="false" IsSortable="true" Visible="true" SortOrder="Ascending"><Name>Log Name</Name><Id>Channel</Id></ColumnInfo></Presentation></View>
+      <View ID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.View" Accessibility="Public" Enabled="true" Target="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class" TypeID="SC!Microsoft.SystemCenter.StateViewType" Visible="true">
+        <Category>Operations</Category><Criteria><InMaintenanceMode>false</InMaintenanceMode></Criteria><Presentation><ColumnInfo Index="0" SortIndex="0" Width="100" Grouped="false" Sorted="true" IsSortable="true" Visible="true" SortOrder="Descending"><Name>State</Name><Id>Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class</Id></ColumnInfo><ColumnInfo Index="1" SortIndex="-1" Width="100" Grouped="false" Sorted="false" IsSortable="true" Visible="true" SortOrder="Ascending"><Name>Maintenance Mode</Name><Id>InMaintenanceMode</Id></ColumnInfo><ColumnInfo Index="2" SortIndex="-1" Width="100" Grouped="false" Sorted="false" IsSortable="true" Visible="true" SortOrder="Ascending"><Name>Name</Name><Id>Name</Id></ColumnInfo><ColumnInfo Index="3" SortIndex="-1" Width="100" Grouped="false" Sorted="false" IsSortable="true" Visible="true" SortOrder="Ascending"><Name>Path</Name><Id>Path</Id></ColumnInfo><ColumnInfo Index="4" SortIndex="-1" Width="100" Grouped="false" Sorted="false" IsSortable="true" Visible="true" SortOrder="Ascending"><Name>Display Name</Name><Id>System.Entity/DisplayName</Id></ColumnInfo></Presentation><Target /></View>
+      <View ID="Linux.Agent.Maintenance.Mode.ManagementServerMMScriptsEvents.View" Accessibility="Public" Enabled="true" Target="SC!Microsoft.SystemCenter.ManagementServer" TypeID="SC!Microsoft.SystemCenter.EventViewType" Visible="true">
+        <Category>Operations</Category><Criteria><RuleList><Rule>$MPElement[Name="Linux.Agent.Maintenance.Mode.CollectLinuxStartStopScriptEvents.Rule"]$</Rule><Rule>$MPElement[Name="Linux.Agent.Maintenance.Mode.CollectStopMMAgentForAllInstancesScriptEvents.Rule"]$</Rule></RuleList></Criteria><Presentation><ColumnInfo Index="0" SortIndex="0" Width="100" Grouped="false" Sorted="false" IsSortable="true" Visible="true" SortOrder="Ascending"><Name>Level</Name><Id>LevelId</Id></ColumnInfo><ColumnInfo Index="1" SortIndex="1" Width="100" Grouped="false" Sorted="true" IsSortable="true" Visible="true" SortOrder="Descending"><Name>Date and Time</Name><Id>TimeGenerated</Id></ColumnInfo><ColumnInfo Index="2" SortIndex="-1" Width="100" Grouped="false" Sorted="false" IsSortable="true" Visible="true" SortOrder="Ascending"><Name>Source</Name><Id>PublisherName</Id></ColumnInfo><ColumnInfo Index="3" SortIndex="-1" Width="100" Grouped="false" Sorted="false" IsSortable="true" Visible="true" SortOrder="Ascending"><Name>Name</Name><Id>MonitoringObjectDisplayName</Id></ColumnInfo><ColumnInfo Index="4" SortIndex="-1" Width="100" Grouped="false" Sorted="false" IsSortable="true" Visible="true" SortOrder="Ascending"><Name>User</Name><Id>User</Id></ColumnInfo><ColumnInfo Index="5" SortIndex="-1" Width="100" Grouped="false" Sorted="false" IsSortable="true" Visible="true" SortOrder="Ascending"><Name>Event Number</Name><Id>Number</Id></ColumnInfo><ColumnInfo Index="6" SortIndex="-1" Width="100" Grouped="false" Sorted="false" IsSortable="true" Visible="true" SortOrder="Ascending"><Name>Log Name</Name><Id>Channel</Id></ColumnInfo></Presentation></View>
+    </Views>
+    <Folders>
+      <Folder ID="Linux.Agent.Maintenance.Mode.Root.Folder" Accessibility="Public" ParentFolder="SC!Microsoft.SystemCenter.Monitoring.ViewFolder.Root" />
+    </Folders>
+    <FolderItems>
+      <FolderItem ElementID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.View" ID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.View.FolderItem" Folder="Linux.Agent.Maintenance.Mode.Root.Folder" />
+      <FolderItem ElementID="Linux.Agent.Maintenance.Mode.MMLogEvents.View" ID="Linux.Agent.Maintenance.Mode.MMLogEvents.View.FolderItem" Folder="Linux.Agent.Maintenance.Mode.Root.Folder" />
+      <FolderItem ElementID="Linux.Agent.Maintenance.Mode.ManagementServerMMScriptsEvents.View" ID="Linux.Agent.Maintenance.Mode.ManagementServerMMScriptsEvents.View.FolderItem" Folder="Linux.Agent.Maintenance.Mode.Root.Folder" />
+    </FolderItems>
+  </Presentation>
   <LanguagePacks>
     <LanguagePack ID="ENU" IsDefault="true">
       <DisplayStrings>
         <DisplayString ElementID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.Discovery">
           <Name>Linux Agent Maintenance Mode Class Discovery</Name>
           <Description>Discovers Instance of Linux Agent Maintenance Mode Class on instances of Microsoft.Unix.Computer.</Description>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.CollectStopMMAgentForAllInstancesScriptEvents.Rule">
+          <Name>Collect Linux Agent Maintenance Mode script Events - Stop-MMForAllInstancesOfClass.ps1</Name>
+          <Description>Collects script events for Stop-MMForAllInstancesOfClass.ps1</Description>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.CollectLinuxStartStopScriptEvents.Rule">
+          <Name>Collect Linux Agent Maintenance Mode script Events - Set-LinuxAgentMM.ps1</Name>
+          <Description>Collects script events for Set-LinuxAgentMM.ps1</Description>
         </DisplayString>
         <DisplayString ElementID="Linux.Agent.Maintenance.Mode.MMLogEntryTriggersMM.Rule">
           <Name>Linux Agent Maintenance Mode - Linux Log Entry triggers Maintenance Mode Rule</Name>
@@ -489,8 +434,26 @@ $api.LogScriptEvent($ScriptName,$EventNumber,4, $Script:Trace)
           <Name>Linux Agent Maintenance Mode</Name>
           <Description>MP used to initiate maintenance mode from a Linux agent</Description>
         </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.Root.Folder">
+          <Name>Linux Agent Maintenance Mode</Name>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.View">
+          <Name>Agents</Name>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.MMLogEvents.View">
+          <Name>MM Log Events</Name>
+          <Description>Events generated by MM log file entries on Linux agents</Description>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.ManagementServerMMScriptsEvents.View">
+          <Name>MM PowerShell Script Events</Name>
+          <Description>Event generated by PowerShell scripts on Management Servers</Description>
+        </DisplayString>
         <DisplayString ElementID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class">
           <Name>Linux Agent Maintenance Mode Class</Name>
+        </DisplayString>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.CreateEventFromLogFileEntry.WriteAction">
+          <Name>Create Event from Log entry</Name>
+          <Description>Creates event with the log file entry description</Description>
         </DisplayString>
         <DisplayString ElementID="Linux.Agent.Maintenance.Mode.StopMMforInstancesofClass.WriteAction">
           <Name>Stop Maintenance Mode for All Instance of a Class</Name>
@@ -519,172 +482,23 @@ $api.LogScriptEvent($ScriptName,$EventNumber,4, $Script:Trace)
       </DisplayStrings>
       <KnowledgeArticles>
         <KnowledgeArticle ElementID="Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class.Discovery" Visible="true">
-          <MamlContent>
-            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
-              <maml:title>Summary</maml:title>
-              <maml:para>
+          <MamlContent><maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10"><maml:title>Summary</maml:title><maml:para>
                 Discovers Instance of<maml:ui>Linux Agent Maintenance Mode Class</maml:ui>(Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class) on instances of<maml:ui>UNIX/Linux Compute</maml:ui>r (Microsoft.Unix.Computer).
-              </maml:para>
-            </maml:section>
-            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
-              <maml:title>Configuration</maml:title>
-              <maml:table>
-                <maml:tableHeader>
-                  <maml:row>
-                    <maml:headerEntry>
-                      <maml:para>Parameter</maml:para>
-                    </maml:headerEntry>
-                    <maml:headerEntry>
-                      <maml:para>Default Value</maml:para>
-                    </maml:headerEntry>
-                    <maml:headerEntry>
-                      <maml:para>Description</maml:para>
-                    </maml:headerEntry>
-                  </maml:row>
-                </maml:tableHeader>
-                <maml:row>
-                  <maml:entry>
-                    <maml:para>Interval</maml:para>
-                  </maml:entry>
-                  <maml:entry>
-                    <maml:para>14400 (seconds)</maml:para>
-                  </maml:entry>
-                  <maml:entry>
-                    <maml:para>Discovery interval.</maml:para>
-                  </maml:entry>
-                </maml:row>
-              </maml:table>
-              <maml:para> </maml:para>
-              <maml:para> </maml:para>
-            </maml:section>
-          </MamlContent>
+              </maml:para></maml:section><maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10"><maml:title>Configuration</maml:title><maml:table><maml:tableHeader><maml:row><maml:headerEntry><maml:para>Parameter</maml:para></maml:headerEntry><maml:headerEntry><maml:para>Default Value</maml:para></maml:headerEntry><maml:headerEntry><maml:para>Description</maml:para></maml:headerEntry></maml:row></maml:tableHeader><maml:row><maml:entry><maml:para>Interval</maml:para></maml:entry><maml:entry><maml:para>14400 (seconds)</maml:para></maml:entry><maml:entry><maml:para>Discovery interval.</maml:para></maml:entry></maml:row></maml:table><maml:para> </maml:para><maml:para> </maml:para></maml:section></MamlContent>
         </KnowledgeArticle>
         <KnowledgeArticle ElementID="Linux.Agent.Maintenance.Mode.MMLogEntryTriggersMM.Rule" Visible="true">
-          <MamlContent>
-            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
-              <maml:title>Summary</maml:title>
-              <maml:para>Rule that collects Maintenance Mode log entries in log file. Uses data from log file to start, stop, or extend maintenance mode window for the Linux computer object.</maml:para>
-            </maml:section>
-            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
-              <maml:title>Configuration</maml:title>
-              <maml:table>
-                <maml:tableHeader>
-                  <maml:row>
-                    <maml:headerEntry>
-                      <maml:para>Parameter</maml:para>
-                    </maml:headerEntry>
-                    <maml:headerEntry>
-                      <maml:para>Default Value</maml:para>
-                    </maml:headerEntry>
-                    <maml:headerEntry>
-                      <maml:para>Description</maml:para>
-                    </maml:headerEntry>
-                  </maml:row>
-                </maml:tableHeader>
-                <maml:row>
-                  <maml:entry>
-                    <maml:para>Log File</maml:para>
-                  </maml:entry>
-                  <maml:entry>
-                    <maml:para>/var/log/scom-agentmm.log</maml:para>
-                  </maml:entry>
-                  <maml:entry>
-                    <maml:para>Log file to monitor for Maintenance Mode entries.</maml:para>
-                  </maml:entry>
-                </maml:row>
-                <maml:row>
-                  <maml:entry>
-                    <maml:para>Separator</maml:para>
-                  </maml:entry>
-                  <maml:entry>
-                    <maml:para>,</maml:para>
-                  </maml:entry>
-                  <maml:entry>
-                    <maml:para>Field separator used to split log entry.</maml:para>
-                  </maml:entry>
-                </maml:row>
-              </maml:table>
-            </maml:section>
-          </MamlContent>
+          <MamlContent><maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10"><maml:title>Summary</maml:title><maml:para>Rule that collects Maintenance Mode log entries in log file. Uses data from log file to start, stop, or extend maintenance mode window for the Linux computer object.</maml:para></maml:section><maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10"><maml:title>Configuration</maml:title><maml:table><maml:tableHeader><maml:row><maml:headerEntry><maml:para>Parameter</maml:para></maml:headerEntry><maml:headerEntry><maml:para>Default Value</maml:para></maml:headerEntry><maml:headerEntry><maml:para>Description</maml:para></maml:headerEntry></maml:row></maml:tableHeader><maml:row><maml:entry><maml:para>Log File</maml:para></maml:entry><maml:entry><maml:para>/var/log/scom-agentmm.log</maml:para></maml:entry><maml:entry><maml:para>Log file to monitor for Maintenance Mode entries.</maml:para></maml:entry></maml:row><maml:row><maml:entry><maml:para>Separator</maml:para></maml:entry><maml:entry><maml:para>,</maml:para></maml:entry><maml:entry><maml:para>Field separator used to split log entry.</maml:para></maml:entry></maml:row></maml:table></maml:section></MamlContent>
         </KnowledgeArticle>
         <KnowledgeArticle ElementID="Linux.Agent.Maintenance.Mode.StopMMforAgentMMClass.Rule" Visible="true">
-          <MamlContent>
-            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
-              <maml:title>Summary</maml:title>
-              <maml:para>
+          <MamlContent><maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10"><maml:title>Summary</maml:title><maml:para>
                 Rule targeting the<maml:ui>All Management Server Resource Pool</maml:ui> that gets all instance of <maml:ui>Linux Agent Maintenance Mode</maml:ui>class that are in Maintenance Mode and stops Maintenance Mode for the class. If the class is in Maintenance Mode it will not detect new update or stop Maintenance Mode log entries. 
-              </maml:para>
-            </maml:section>
-            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
-              <maml:title>Configuration</maml:title>
-              <maml:table>
-                <maml:tableHeader>
-                  <maml:row>
-                    <maml:headerEntry>
-                      <maml:para>Parameter</maml:para>
-                    </maml:headerEntry>
-                    <maml:headerEntry>
-                      <maml:para>Default Value</maml:para>
-                    </maml:headerEntry>
-                    <maml:headerEntry>
-                      <maml:para>Description</maml:para>
-                    </maml:headerEntry>
-                  </maml:row>
-                </maml:tableHeader>
-                <maml:row>
-                  <maml:entry>
-                    <maml:para>Interval</maml:para>
-                  </maml:entry>
-                  <maml:entry>
-                    <maml:para>300 (seconds)</maml:para>
-                  </maml:entry>
-                  <maml:entry>
-                    <maml:para>Interval between rule executions.</maml:para>
-                  </maml:entry>
-                </maml:row>
-                <maml:row>
-                  <maml:entry>
-                    <maml:para>Management Server</maml:para>
-                  </maml:entry>
-                  <maml:entry>
-                    <maml:para>.</maml:para>
-                  </maml:entry>
-                  <maml:entry>
-                    <maml:para>Management server the script connects to. Script is expected to run on a management server.</maml:para>
-                    <maml:para> </maml:para>
-                    <maml:para>Should not need to be changed unless you are troubleshooting and issue. </maml:para>
-                  </maml:entry>
-                </maml:row>
-                <maml:row>
-                  <maml:entry>
-                    <maml:para>Class</maml:para>
-                  </maml:entry>
-                  <maml:entry>
-                    <maml:para>Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class</maml:para>
-                  </maml:entry>
-                  <maml:entry>
-                    <maml:para>Name of class to stop maintenance mode on.</maml:para>
-                    <maml:para> </maml:para>
-                    <maml:para>Should not need to be changed unless you are troubleshooting and issue. </maml:para>
-                  </maml:entry>
-                </maml:row>
-              </maml:table>
-              <maml:para> </maml:para>
-              <maml:para> </maml:para>
-            </maml:section>
-          </MamlContent>
+              </maml:para></maml:section><maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10"><maml:title>Configuration</maml:title><maml:table><maml:tableHeader><maml:row><maml:headerEntry><maml:para>Parameter</maml:para></maml:headerEntry><maml:headerEntry><maml:para>Default Value</maml:para></maml:headerEntry><maml:headerEntry><maml:para>Description</maml:para></maml:headerEntry></maml:row></maml:tableHeader><maml:row><maml:entry><maml:para>Interval</maml:para></maml:entry><maml:entry><maml:para>300 (seconds)</maml:para></maml:entry><maml:entry><maml:para>Interval between rule executions.</maml:para></maml:entry></maml:row><maml:row><maml:entry><maml:para>Management Server</maml:para></maml:entry><maml:entry><maml:para>.</maml:para></maml:entry><maml:entry><maml:para>Management server the script connects to. Script is expected to run on a management server.</maml:para><maml:para> </maml:para><maml:para>Should not need to be changed unless you are troubleshooting and issue. </maml:para></maml:entry></maml:row><maml:row><maml:entry><maml:para>Class</maml:para></maml:entry><maml:entry><maml:para>Linux.Agent.Maintenance.Mode.AgentMaintenanceMode.Class</maml:para></maml:entry><maml:entry><maml:para>Name of class to stop maintenance mode on.</maml:para><maml:para> </maml:para><maml:para>Should not need to be changed unless you are troubleshooting and issue. </maml:para></maml:entry></maml:row></maml:table><maml:para> </maml:para><maml:para> </maml:para></maml:section></MamlContent>
         </KnowledgeArticle>
         <KnowledgeArticle ElementID="Linux.Agent.Maintenance.Mode" Visible="true">
-          <MamlContent>
-            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
-              <maml:title>Linux Agent Maintenance Mode</maml:title>
-              <maml:para>
+          <MamlContent><maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10"><maml:title>Linux Agent Maintenance Mode</maml:title><maml:para>
                 Documentation and the latest version can be found on GitHub -<maml:navigationLink><maml:linkText>https://github.com/KeithRochester/Linux-Agent-Maintenance-Mode.</maml:linkText><maml:uri href="https://github.com/KeithRochester/Linux-Agent-Maintenance-Mode" /></maml:navigationLink>. 
-              </maml:para>
-              <maml:para>
-                If you have any questions or suggestions, please send me a message <maml:navigationLink><maml:linkText>keith.rochester@unit92.com</maml:linkText><maml:uri href="mailto:keith.rochester@unit92.com?subject=Linux%20Agent%20Maintenance%20Mode" /></maml:navigationLink></maml:para>
-            </maml:section>
-          </MamlContent>
+              </maml:para><maml:para>
+                If you have any questions or suggestions, please send me a message <maml:navigationLink><maml:linkText>keith.rochester@unit92.com</maml:linkText><maml:uri href="mailto:keith.rochester@unit92.com?subject=Linux%20Agent%20Maintenance%20Mode" /></maml:navigationLink></maml:para></maml:section></MamlContent>
         </KnowledgeArticle>
       </KnowledgeArticles>
     </LanguagePack>

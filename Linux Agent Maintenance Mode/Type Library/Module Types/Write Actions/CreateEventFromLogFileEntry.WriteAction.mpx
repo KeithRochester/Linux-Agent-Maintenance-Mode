@@ -1,0 +1,72 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <ModuleTypes>
+      <WriteActionModuleType ID="Linux.Agent.Maintenance.Mode.CreateEventFromLogFileEntry.WriteAction" Accessibility="Internal" Batching="false">
+        <Configuration>
+
+          <xsd:element minOccurs="1" name="EventOriginId" type="xsd:string" />
+          <xsd:element minOccurs="1" name="PublisherId" type="xsd:string" />
+          <xsd:element minOccurs="1" name="PublisherName" type="xsd:string" />
+          <xsd:element minOccurs="1" name="Channel" type="xsd:string" />
+          <xsd:element minOccurs="1" name="LoggingComputer" type="xsd:string" />
+          <xsd:element minOccurs="1" name="EventNumber" type="xsd:int" />
+          <xsd:element minOccurs="1" name="EventCategory" type="xsd:int" />
+          <xsd:element minOccurs="1" name="EventLevel" type="xsd:int" />
+          <xsd:element minOccurs="0" name="UserName" type="xsd:string" />
+          <xsd:element minOccurs="1" name="Description" type="xsd:string" />
+
+        </Configuration>      
+        <!--<OverrideableParameters>
+          <OverrideableParameter ID="EventOriginId" Selector="$Config/EventOriginId$" ParameterType="string" />
+          <OverrideableParameter ID="PublisherId" Selector="$Config/PublisherId$" ParameterType="string" />
+          <OverrideableParameter ID="PublisherName" Selector="$Config/PublisherName$" ParameterType="string" />
+          <OverrideableParameter ID="Channel" Selector="$Config/Channel$" ParameterType="string" />
+          <OverrideableParameter ID="LoggingComputer" Selector="$Config/LoggingComputer$" ParameterType="string" />
+          <OverrideableParameter ID="EventNumber" Selector="$Config/EventNumber$" ParameterType="int" />
+          <OverrideableParameter ID="EventCategory" Selector="$Config/EventCategory$" ParameterType="int" />
+          <OverrideableParameter ID="EventLevel" Selector="$Config/EventLevel$" ParameterType="int" />
+          <OverrideableParameter ID="UserName" Selector="$Config/UserName$" ParameterType="string" />
+          <OverrideableParameter ID="Description" Selector="$Config/Description$" ParameterType="string" />
+        </OverrideableParameters>-->
+        <ModuleImplementation Isolation="Any">
+          <Composite>
+            <MemberModules>
+              <ConditionDetection ID="Mapper" TypeID="System!System.Event.GenericDataMapper">
+                <EventOriginId>$Config/EventOriginId$</EventOriginId>
+                <PublisherId>$Config/PublisherId$</PublisherId>
+                <PublisherName>$Config/PublisherName$</PublisherName>
+                <Channel>$Config/Channel$</Channel>
+                <LoggingComputer>$Config/LoggingComputer$</LoggingComputer>
+                <EventNumber>$Config/EventNumber$</EventNumber>
+                <EventCategory>$Config/EventCategory$</EventCategory>
+                <EventLevel>$Config/EventLevel$</EventLevel>
+                <UserName>$Config/UserName$</UserName>
+                <Description>$Config/Description$</Description>
+                <Params>
+                  <Param>$Config/Description$</Param>
+                </Params>
+              </ConditionDetection>
+              <WriteAction ID="CollectEvent" TypeID="SC!Microsoft.SystemCenter.CollectEvent"/>
+            </MemberModules>
+            <Composition>
+              <Node ID="CollectEvent">
+                <Node ID="Mapper"/>
+              </Node>
+            </Composition>
+          </Composite>
+        </ModuleImplementation>
+        <InputType>System!System.BaseData</InputType>
+      </WriteActionModuleType>
+    </ModuleTypes>
+  </TypeDefinitions>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="Linux.Agent.Maintenance.Mode.CreateEventFromLogFileEntry.WriteAction">
+          <Name>Create Event from Log entry</Name>
+          <Description>Creates event with the log file entry description</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>
